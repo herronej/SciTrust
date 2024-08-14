@@ -7,6 +7,7 @@ setup(
     entry_points={
         'console_scripts': [
             'scitrust-run=src.main:main',
+            'scitrust-eval=src.evaluation:main'
         ],
     },
 )
