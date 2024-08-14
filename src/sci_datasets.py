@@ -493,7 +493,7 @@ class SciEthicsDataset(Dataset):
 
         self.k = k
         #dataset = load_dataset('allenai/openbookqa')
-        path = "sci_ethics_data"
+        path = "../scitrust_datasets/sci_ethics_datasets"
         if subset == "ALL":
             df_list = []
             for root, dirs_list, files_list in os.walk(path):
