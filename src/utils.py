@@ -48,16 +48,16 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
             dataset = OpenBookQADataset(k=k, split=split)
 
         elif dataset_name == "ChemistryQA":
-            dataset = QADataset("data/truthfulness_openended/chemistry_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/chemistry_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "PhysicsQA":
-            dataset = QADataset("data/truthfulness_openended/physics_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/physics_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "BiologyQA":
-            dataset = QADataset("data/truthfulness_openended/biology_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/biology_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "ComputerScienceQA":
-            dataset = QADataset("data/truthfulness_openended/computer_science_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/computer_science_qa_chatgpt-4o.jsonl", split=split)
 
         else:
             print("Dataset {} not supported. Supported datasets: SciQ, GPQA, ARC-E, ARC-C, OBQA".format(dataset_name))
@@ -83,32 +83,32 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
 
         if dimension == 'adv_robustness_textfooler':
             if dataset_name == "SciQ":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textfooler_SciQ_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textfooler_SciQ_0_0.json", split=split)
             elif dataset_name == "ARC-C":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textfooler_ARC-C_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textfooler_ARC-C_0_0.json", split=split)
             elif dataset_name == "GPQA":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textfooler_GPQA_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textfooler_GPQA_0_0.json", split=split)
             else: 
                 print("Dataset {} not supported. Supported datasets: SciQ, ARC-E, ARC-C, and GPQA.".format(dataset_name))
                 exit()
 
         elif dimension == 'adv_robustness_textbugger':
             if dataset_name == "SciQ":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textbugger_SciQ_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_SciQ_0_0.json", split=split)
             elif dataset_name == "ARC-C":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textbugger_ARC-C_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_ARC-C_0_0.json", split=split)
             elif dataset_name == "GPQA":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textbugger_GPQA_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_GPQA_0_0.json", split=split)
             else:
                 print("Dataset {} not supported. Supported datasets: SciQ, ARC-E, ARC-C, and GPQA.".format(dataset_name))
                 exit()
         elif dimension == 'adv_robustness_stresstest':
             if dataset_name == "SciQ":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textbugger_SciQ_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_SciQ_0_0.json", split=split)
             elif dataset_name == "ARC-C":
-                dataset = AdvDataset("data/adv_data/llama2-7b_textbugger_ARC-C_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_ARC-C_0_0.json", split=split)
             elif dataset_name == "GPQA":
-                dataset = AdvDataset("data/adv_data/llama2-7b_stresstest_GPQA_0_0.json", split=split)
+                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_stresstest_GPQA_0_0.json", split=split)
             else:
                 print("Dataset {} not supported. Supported datasets: SciQ, ARC-E, ARC-C, and OBQA.".format(dataset_name))
                 exit()
@@ -118,15 +118,15 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
                 print("Attack not supported.")
                 exit()
             if dataset_name == "ChemistryQA":
-                dataset = QADataset("data/adv_data/chemistry_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("../scitrust_datasets/adv_datasets/open_ended/chemistry_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
             elif dataset_name == "ComputerScienceQA":
-                dataset = QADataset("data/adv_data/computer_science_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("../scitrust_datasets/adv_datasets/open_ended/computer_science_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
             elif dataset_name == "BiologyQA":
-                dataset = QADataset("data/adv_data/biology_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("../scitrust_datasets/adv_datasets/open_ended/biology_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
             elif dataset_name == "PhysicsQA":
-                dataset = QADataset("data/adv_data/physics_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("../scitrust_datasets/adv_datasets/open_ended/physics_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
             elif dataset_name == "LogicInference":
-                dataset = QADataset("data/adv_data/logicinference_oa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("../scitrust_datasets/adv_datasets/open_ended/logicinference_oa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
             else:
                 print("Dataset {} not supported. Supported datasets: ChemistryQA, ComputerScienceQA, BiologyQA, PhysicsQA, and LogicInference.".format(dataset_name))
                 exit()
@@ -180,16 +180,16 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
     elif dimension == "hallucination":
 
         if dataset_name == "ChemistryQA":
-            dataset = QADataset("data/truthfulness_openended/chemistry_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/chemistry_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "PhysicsQA":
-            dataset = QADataset("data/truthfulness_openended/physics_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/physics_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "BiologyQA":
-            dataset = QADataset("data/truthfulness_openended/biology_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/biology_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "ComputerScienceQA":
-            dataset = QADataset("data/truthfulness_openended/computer_science_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/computer_science_qa_chatgpt-4o.jsonl", split=split)
 
         else:
             print("Dataset {} not supported. Supported datasets: ChemistryQA, PhysicsQA, BiologyQA, and ComputerScienceQA.".format(dataset_name))
