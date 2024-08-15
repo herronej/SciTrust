@@ -16,9 +16,7 @@ class LogicInferenceDataset(Dataset):
     def __init__(self, k=5, split=0):
 
         self.k = k
-        #ds = load_dataset('KK04/LogicInference_OA') 
-        #ds.save_to_disk("data/LI")
-        dataset = load_from_disk("data/LI") #load_dataset('KK04/LogicInference_OA', split='train') #Dataset.from_file("data/LogicInference_OA.hf/train/data-00000-of-00001.arrow")#'KK04/LogicInference_OA', split='train')
+        dataset = load_dataset('KK04/LogicInference_OA') 
         df_pandas = dataset['train'].to_pandas()
         if split != None:
             df_pandas = np.array_split(df_pandas, 1000)[split]
@@ -60,15 +58,6 @@ class LogicInferenceDataset(Dataset):
               else:
                   curr_item = item
 
-              #multiple_choice = ''
-              #random_choices = random.sample(range(4), 4)
-              '''completion_str = curr_item[''] + '\n'
-
-              for choice in ['A', 'B', 'C', 'D']:
-                  line = '' #choice + ': '
-                  line += str(curr_item[choice]) + '\n'
-                  completion_str += line'''
-
               completion_str = curr_item['INSTRUCTION']
 
               if k_i == self.k:
@@ -80,10 +69,6 @@ class LogicInferenceDataset(Dataset):
           output_data.append(all_shots_str)
           labels.append(curr_item['RESPONSE'])
 
-      #print(output_data[0])
-      #print(labels[0])
-      #print(df.shape)
-      #exit()
       return output_data, labels
 
 
@@ -91,8 +76,6 @@ class ReClorDataset(Dataset):
     def __init__(self, k=5):
 
         self.k = k
-
-        #dataset = load_dataset('voidful/ReClor')
 
         df_pandas = pd.read_json('reclor_data/train.json') #dataset['train'].to_pandas()
         self.data, self.labels = self.preprocess(df_pandas)
@@ -160,7 +143,7 @@ class LogiQADataset(Dataset):
 
         self.k = k
 
-        dataset = load_dataset('lucasmccabe/logiqa', split='train') #[{}%:{}%]'.format(split*10, split*10+10))
+        dataset = load_dataset('lucasmccabe/logiqa', split='train')
 
         df_pandas = dataset.to_pandas()
         self.data, self.labels = self.preprocess(df_pandas)

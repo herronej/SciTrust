@@ -6,14 +6,14 @@ import random
 from tqdm.auto import tqdm
 from datasets import load_dataset
 import pandas as pd
-from sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset, AdvDataset, QADataset
-from logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
+from .sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset, AdvDataset, QADataset
+from .logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
 
 def get_dataset(dimension, dataset_name, k=0, split=None):
 
-    if dimension == 'truthfulness':
+    if dimension == 'truthfulness_misinformation':
         if dataset_name == 'SciQ':
 	        dataset = SciQDataset(k=k, split=split)
 
@@ -62,7 +62,7 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
         else:
             print("Dataset {} not supported. Supported datasets: SciQ, GPQA, ARC-E, ARC-C, OBQA".format(dataset_name))
 
-    elif dimension == "sycophancy":
+    elif dimension == "truthfulness_sycophancy":
         if dataset_name == 'SciQ':
             dataset = SciQDataset(k=k, split=split, sycophancy=True)
 
@@ -163,7 +163,7 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
             print("Dataset {} not supported. Supported datasets: scientific_ethics_full, scientific_ethics_ai, scientific_ethics_animal_testing, scientific_ethics_bias_objectivity, scientific_ethics_data_privacy, scientific_ethics_dual_use_research, scientific_ethics_environmental_impact, scientific_ethics_human_subjects".format(dataset_name))
             exit()
 
-    elif dimension == "logical_reasoning":
+    elif dimension == "truthfulness_logical_reasoning":
 
         if dataset_name == 'LogicInference':
             dataset = LogicInferenceDataset(k=k, split=split)
@@ -177,7 +177,7 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
         else:
             print("Dataset {} not supported. Supported datasets: LogicInference, ReClor, and LogiQA.".format(dataset_name))
 
-    elif dimension == "hallucination":
+    elif dimension == "truthfulness_hallucination":
 
         if dataset_name == "ChemistryQA":
             dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/chemistry_qa_chatgpt-4o.jsonl", split=split)

@@ -9,36 +9,21 @@ import requests
 import os
 import numpy as np
 
-def split_by_fractions(df, fracs):
-    #assert sum(fracs)==1.0, 'fractions sum is not 1.0 (fractions_sum={})'.format(sum(fracs))
-    remain = df.index.copy().to_frame()
-    res = []
-    for i in range(len(fracs)):
-        print(i)
-        fractions_sum=sum(fracs[i:])
-        frac = fracs[i]/fractions_sum
-        idxs = remain.sample(frac=frac, random_state=42).index
-        remain=remain.drop(idxs)
-        res.append(idxs)
-    return [df.loc[idxs] for idxs in res]
-
 class ARCDataset(Dataset):
     def __init__(self, subset, sycophancy=False, k=0, split=None):
 
         self.k = k
         self.sycophancy = sycophancy
 
-        if split != None:
-            split_str = 'train[{}%:{}%]'.format(split*10, split*10+10)
-        else:
-            split_str = 'train'
-
         if subset == 'Easy':
-            dataset = load_dataset('allenai/ai2_arc', 'ARC-Easy', split=split_str)
+            dataset = load_dataset('allenai/ai2_arc', 'ARC-Easy')
         else:
-            dataset = load_dataset('allenai/ai2_arc', 'ARC-Challenge', split=split_str)
+            dataset = load_dataset('allenai/ai2_arc', 'ARC-Challenge')
 
         df_pandas = dataset.to_pandas()
+        if split != None:
+            df_pandas = np.array_split(df_pandas, 100)[split]
+
         self.data, self.labels = self.preprocess(df_pandas)
 
 
@@ -116,11 +101,11 @@ class SciQDataset(Dataset):
     def __init__(self, sycophancy=False, k=0, split=0):
 
         self.k = k
-
         self.sycophancy = sycophancy
-        dataset = load_dataset('allenai/sciq', split='train')#, split=split_str)
+        dataset = load_dataset('allenai/sciq', split='train')
         df_pandas = dataset.to_pandas()
-        df_pandas = np.array_split(df_pandas, 100)[split]
+        if split != None:
+            df_pandas = np.array_split(df_pandas, 100)[split]
         self.data, self.labels = self.preprocess(df_pandas)
 
     def __len__(self):
@@ -388,9 +373,6 @@ class OpenBookQADataset(Dataset):
           #print('all_shots_str', all_shots_str)
           labels.append('('+curr_item['answerKey']+')') #correct_answer_letter + ': ' + curr_item['answerKey'])
 
-      '''print(output_data[0])
-      print(labels[0])
-      exit()'''
       return output_data, labels
 
 
@@ -398,36 +380,25 @@ class HendrycksDataset(Dataset):
     def __init__(self, subset, k=5, split=0):
 
         self.k = k
-        #dataset = load_dataset('allenai/openbookqa')
-        if split != None:
-            split_str = 'test[{}%:{}%]'.format(split*10, split*10+10)
-        else:
-            split_str = 'test'
 
         if subset == "CC":
-            dataset = load_dataset('cais/mmlu', 'college_chemistry', split=split_str)
-            #df_pandas = pd.read_csv('data/test/college_chemistry_test.csv', names=['question', 'A', 'B', 'C', 'D', 'answer'])  
+            dataset = load_dataset('cais/mmlu', 'college_chemistry')
 
         elif subset == 'CCS':
-            dataset = load_dataset('cais/mmlu', 'college_computer_science', split=split_str)
+            dataset = load_dataset('cais/mmlu', 'college_computer_science')
 
         elif subset == 'CB':
-            dataset = load_dataset('cais/mmlu', 'college_biology', split=split_str)
-            #df_pandas = pd.read_csv('data/test/college_computer_science_test.csv', names=['question', 'A', 'B', 'C', 'D', 'answer'])
+            dataset = load_dataset('cais/mmlu', 'college_biology')
 
         elif subset == 'CM':
-            dataset = load_dataset('cais/mmlu', 'college_mathematics', split=split_str)
-            #df_pandas = pd.read_csv('data/test/college_mathematics_test.csv', names=['question', 'A', 'B', 'C', 'D', 'answer'])
+            dataset = load_dataset('cais/mmlu', 'college_mathematics')
 
         elif subset == 'CP':
-            dataset = load_dataset('cais/mmlu', 'college_physics', split=split_str)
-            #df_pandas = pd.read_csv('data/test/college_physics_test.csv', names=['question', 'A', 'B', 'C', 'D', 'answer'])
-
-        #elif subset == 'S':
-        #    dataset = load_dataset('cais/mmlu', 'college_chemistry', split=split_str)
-        #    #df_pandas = pd.read_csv('data/test/sociology_test.csv', names=['question', 'A', 'B', 'C', 'D', 'answer'])
+            dataset = load_dataset('cais/mmlu', 'college_physics')
 
         df_pandas = dataset.to_pandas()
+        if split != None:
+            df_pandas = np.array_split(df_pandas, 100)[split]
         self.data, self.labels = self.preprocess(df_pandas)
 
 

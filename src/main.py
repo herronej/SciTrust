@@ -6,12 +6,13 @@ import random
 from tqdm.auto import tqdm
 from datasets import load_dataset
 import pandas as pd
-from sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset
-from logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
+from .sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset
+from .logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
-from utils import get_dataset, append_record, generate_samples, save_checkpoint, load_checkpoint
+from .utils import get_dataset, append_record, generate_samples, save_checkpoint, load_checkpoint
 import numpy as np
+
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
 
@@ -23,9 +24,25 @@ else:
     print("Couldn't find cuda")
 
 
-def main(args):
+def main():
 
     #print(args)
+    print('parsing args')
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--dataset', type=str, default=None)
+    parser.add_argument('--model', type=str, default=None)
+    parser.add_argument('-k', type=int, default=None)
+    parser.add_argument('--answer_format', type=str, default='S')
+    parser.add_argument('--restart', action='store_true')
+    parser.add_argument('--split', type=int, default=None)
+    parser.add_argument('--dimension', type=str, default=None)
+
+    args = parser.parse_args()
+    print('#devices =', torch.cuda.device_count())
+    print('available =', torch.cuda.is_available())
+
 
     openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", 'LogicInference']
 
@@ -34,11 +51,11 @@ def main(args):
     k = args.k
     restart = args.restart
     split = args.split
-    principle = args.principle
+    dimension = args.dimension
     openended = dataset_name in openended_datasets
     #device = args.device
 
-    dataset = get_dataset(principle, dataset_name, k=k, split=split)
+    dataset = get_dataset(dimension, dataset_name, k=k, split=split)
 
     if not os.path.exists("outputs"):
         os.makedirs("outputs")
@@ -46,13 +63,10 @@ def main(args):
     if not os.path.exists("checkpoints"):
         os.makedirs("checkpoints")
 
-    output_path = "outputs/{}_{}_{}_{}.json".format(principle, model_name, dataset_name, k)
-    checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}.json".format(principle, model_name, dataset_name, k, split)
+    output_path = "outputs/{}_{}_{}_{}.json".format(dimension, model_name, dataset_name, k)
+    checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}.json".format(dimension, model_name, dataset_name, k, split)
     features = ['x', 'y', 'gen1', 'gen2', 'gen3', 'gen4']#, 'gen5']
 
-    '''if not restart:
-    	with open(output_path, 'w'):
-        	pass'''
 
     generation_data = []
     if model_name == 'llama3-70b-instruct':
@@ -114,19 +128,4 @@ def main(args):
 
 if __name__ == '__main__':
 
-    print('parsing args')
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--dataset', type=str, default=None)
-    parser.add_argument('--model', type=str, default=None)
-    parser.add_argument('-k', type=int, default=None)
-    parser.add_argument('--answer_format', type=str, default='S')
-    parser.add_argument('--restart', action='store_true')
-    parser.add_argument('--split', type=int, default=None)
-    parser.add_argument('--dimension', type=str, default=None)
-
-    args = parser.parse_args()
-    print('#devices =', torch.cuda.device_count())
-    print('available =', torch.cuda.is_available())
     main(args)

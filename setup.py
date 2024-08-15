@@ -10,13 +10,4 @@ setup(
             'scitrust-eval=src.evaluation:main'
         ],
     },
-    install_requires=[
-        'accelerate',
-        'bert_score',
-        'datasets', 
-        'rouge_score', 
-        'selfcheckgpt', 
-        'transformers',
-        'tqdm'
-],
 )
