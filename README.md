@@ -57,6 +57,10 @@ conda activate pyt1.11
 
 ### Running SciTrust
 
+#### Trustworthiness Perspectives
+
+#### Candidate Models
+
 
 #### Examples by Perspective 
 
