@@ -431,7 +431,7 @@ def main():
     parser.add_argument('-k', type=int, default=None)
     parser.add_argument('--restart', action='store_true')
     parser.add_argument('--split', type=int, default=None)
-    parser.add_argument('--dimension', type=str, default=None)
+    parser.add_argument('--perspective', type=str, default=None)
 
     parser.add_argument('--output_file', type=str, default='output.json')
     parser.add_argument('--checkpoint_file', type=str, default='checkpoint.json')
@@ -449,12 +449,12 @@ def main():
     else:
         open_ended = False
 
-    dimension = args.dimension
+    perspective = args.perspective
     model_name = args.model
     dataset_name = args.dataset
     k = args.k
 
-    path_to_file = "outputs/{}_{}_{}_{}.json".format(dimension, model_name, dataset_name, k)
+    path_to_file = "outputs/{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k)
     print(path_to_file)
     try:
         response_nli_data, response_ground_truth_data = convert_data_to_given_format(path_to_file)
@@ -470,7 +470,7 @@ def main():
         df = response_ground_truth_data
         calc_accuracy(df['y_n'].to_list(), df['x_n'].to_list(), df)
 
-    elif dimension == "hallucination":
+    elif perspective == "hallucination":
         df = response_nli_data
         if df.shape[0] > 500:
             df = df.sample(500)

@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--answer_format', type=str, default='S')
     parser.add_argument('--restart', action='store_true')
     parser.add_argument('--split', type=int, default=None)
-    parser.add_argument('--dimension', type=str, default=None)
+    parser.add_argument('--perspective', type=str, default=None)
 
     args = parser.parse_args()
     print('#devices =', torch.cuda.device_count())
@@ -51,11 +51,11 @@ def main():
     k = args.k
     restart = args.restart
     split = args.split
-    dimension = args.dimension
+    perspective = args.perspective
     openended = dataset_name in openended_datasets
     #device = args.device
 
-    dataset = get_dataset(dimension, dataset_name, k=k, split=split)
+    dataset = get_dataset(perspective, dataset_name, k=k, split=split)
 
     if not os.path.exists("outputs"):
         os.makedirs("outputs")
@@ -63,8 +63,8 @@ def main():
     if not os.path.exists("checkpoints"):
         os.makedirs("checkpoints")
 
-    output_path = "outputs/{}_{}_{}_{}.json".format(dimension, model_name, dataset_name, k)
-    checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}.json".format(dimension, model_name, dataset_name, k, split)
+    output_path = "outputs/{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k)
+    checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, split)
     features = ['x', 'y', 'gen1', 'gen2', 'gen3', 'gen4']#, 'gen5']
 
 
