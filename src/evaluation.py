@@ -100,6 +100,7 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, api_key, rest
     else:
         start_idx = 0
 
+    print(df.head())
 
     for i in tqdm(range(len(df))): #range(len(sentences))):
 
@@ -135,7 +136,9 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, api_key, rest
 
     all_scores  = pd.read_json(output_file, lines=True)['score'].tolist()
 
-    print("LLM as Judge Rating:", statistics.mean(all_scores), statistics.stdev(all_scores))
+    print("LLM as Judge Rating:")
+    print("Mean:", statistics.mean(all_scores))
+    print("Standard Deviation:", statistics.stdev(all_scores), '\n')
 
     return df
 
@@ -203,7 +206,9 @@ def lynx_hallucination(df, number_of_samples):
                 all_scores.append(0.0)
             #all_scores.append(float(result[0]['generated_text']['SCORE']))     
 
-    print("Lynx Score:", statistics.mean(all_scores), statistics.stdev(all_scores))
+    print("Lynx Score:") 
+    print("Mean:", statistics.mean(all_scores))
+    print("Standard Deviation:", statistics.stdev(all_scores), '\n')
 
     #df['Scores'] = scores
     return df
@@ -246,9 +251,9 @@ def calc_nli_score(df, number_of_samples):
             all_scores += list(score)
         else:
             scores.append(0.0)
-
-    print("NLI Score:", statistics.mean(scores), statistics.stdev(scores))
-    print("NLI Score:", statistics.mean(all_scores), statistics.stdev(all_scores))
+    #print("NLI Score:")
+    #print("Mean:", statistics.mean(scores), statistics.stdev(scores))
+    #print("Standard Deviation:", statistics.mean(all_scores), statistics.stdev(all_scores), '\n')
 
     #print(all_scores)
 
@@ -256,8 +261,9 @@ def calc_nli_score(df, number_of_samples):
     all_scores = list(np.where(np.array(all_scores) > threshold, 1.0, 0.0))
     #print(all_scores)
 
-    print("Hallucination:", statistics.mean(all_scores), statistics.stdev(all_scores))
-
+    print("NLI % Hallucination:")
+    print("Mean:", statistics.mean(all_scores))
+    print("Standard Deviation:", statistics.stdev(all_scores), '\n')
     df['Scores'] = scores
     return df
 
@@ -267,9 +273,17 @@ def calc_bertscore(y_list, x_list, df, lang="en", model_type="bert-large-uncased
     df['Bert Precision'] = P
     df['Bert Recall'] = R
 
-    print("Bert Precision:", statistics.mean(P.numpy()), statistics.stdev(P.numpy()))
-    print("Bert Recall:", statistics.mean(R.numpy()), statistics.stdev(R.numpy()))
-    print("Bert F1 Score:", statistics.mean(F1.numpy()), statistics.stdev(F1.numpy()))
+    print("Bert Precision:")
+    print("Mean:", statistics.mean(P.numpy()))
+    print("Standard Deviation:", statistics.stdev(P.numpy()), '\n')
+
+    print("Bert Recall:")
+    print("Mean:", statistics.mean(R.numpy()))
+    print("Standard Deviation:", statistics.stdev(R.numpy()), '\n')
+
+    print("Bert F1 Score:")
+    print("Mean:", statistics.mean(F1.numpy()))
+    print("Standard Deviation:", statistics.stdev(F1.numpy()), '\n')
 
     return df
 
@@ -301,20 +315,37 @@ def calc_rougescore(y,x,df):
     df['Rouge L Recall'] = rougeLr
     df['Rouge L F1 Score'] = rougeLf1
 
-    print("Rouge 1 Precision:", statistics.mean(rouge1p), statistics.stdev(rouge1p))
-    print("Rouge 1 Recall:", statistics.mean(rouge1r), statistics.stdev(rouge1r))
-    print("Rouge 1 F1 Score:", statistics.mean(rouge1f1), statistics.stdev(rouge1f1))
-    print("Rouge L Precision:", statistics.mean(rougeLp), statistics.stdev(rougeLp))
-    print("Rouge L Recall:", statistics.mean(rougeLr), statistics.stdev(rougeLr))
-    print("Rouge L F1 Score:", statistics.mean(rougeLf1), statistics.stdev(rougeLf1))
+    print("Rouge 1 Precision:")
+    print("Mean:", statistics.mean(rouge1p))
+    print("Standard Deviation:", statistics.stdev(rouge1p), '\n')
+    
+    print("Rouge 1 Recall:")
+    print("Mean:", statistics.mean(rouge1r))
+    print("Standard Deviation:", statistics.stdev(rouge1r), '\n')
+    
+    print("Rouge 1 F1 Score:")
+    print("Mean:", statistics.mean(rouge1f1))
+    print("Standard Deviation:", statistics.stdev(rouge1f1), '\n')
+
+    print("Rouge L Precision:")
+    print("Mean:", statistics.mean(rougeLp)) 
+    print("Standard Deviation:", statistics.stdev(rougeLp), '\n')
+
+    print("Rouge L Recall:")
+    print("Mean:", statistics.mean(rougeLr))
+    print("Standard Deviation:", statistics.stdev(rougeLr), '\n')
+    
+    print("Rouge L F1 Score:")
+    print("Mean:", statistics.mean(rougeLf1))
+    print("Standard Deviation:", statistics.stdev(rougeLf1), '\n')
 
     return df
 
 def calc_bartscore(y,x,df):
+    bart_model = SentenceTransformer('facebook/bart-large-cnn')
     bartres = []
     for i in tqdm(range(len(df))):
         try:
-            #print(x[i], y[i])
             embedding1 = bart_model.encode(y[i], convert_to_tensor = True)
             embedding2 = bart_model.encode(x[i], convert_to_tensor = True)
             similarity_score = util.pytorch_cos_sim(embedding1, embedding2)
@@ -322,22 +353,15 @@ def calc_bartscore(y,x,df):
         except:
             continue
 
-    #bartres = [tensor.item() for tensor in bartres]
-    #df['Bart Score'] = bartres
-    print("Bart Score:", statistics.mean(bartres), statistics.stdev(bartres))
+    print("Bart Score:")
+    print("Mean:", statistics.mean(bartres))
+    print("Standard Deviation:", statistics.stdev(bartres), '\n')
     return df
 
 def calc_accuracy(y,x,df):
-    # x is target 
-    # y is output
 
     accuracies = []
     for i in tqdm(range(len(df))):
-        #try:
-        #print(y[i].strip())
-        #print(x[i])
-        #print(int(y[i].strip().startswith(x[i])))
-        #exit()
         x[i] = re.sub('[^A-Za-z0-9]+', ' ', x[i]).strip().lower()
         y[i] = re.sub('[^A-Za-z0-9]+', ' ', y[i]).lower()
         print('x', x[i])
@@ -345,12 +369,11 @@ def calc_accuracy(y,x,df):
         correct = int(bool(re.search(rf'\b{str(x[i])}\b', str(y[i]))))
         print('correct', correct)
         accuracies.append(correct)
-        #except:
-        #    accuracies.append(0.0)
     df['Accuracy'] = accuracies
 
-    print("Accuracy:", statistics.mean(accuracies))
-    print("Accuracy:", statistics.stdev(accuracies))
+    print("Accuracy")
+    print("Mean:", statistics.mean(accuracies))
+    print("Standard Deviation:", statistics.stdev(accuracies))
 
     return df
 
@@ -398,8 +421,9 @@ def convert_data_to_given_format(path_to_file):
     for column in response_ground_truth_data:
         response_ground_truth_data[column] = response_ground_truth_data[column].astype(str)
 
-if __name__ == '__main__':
+    return response_nli_data, response_ground_truth_data
 
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset', type=str, default=None)
@@ -422,9 +446,16 @@ if __name__ == '__main__':
 
     if args.dataset in openended_datasets:
         open_ended = True
+    else:
+        open_ended = False
 
+    dimension = args.dimension
+    model_name = args.model
+    dataset_name = args.dataset
+    k = args.k
 
-    path_to_file = "outputs/{}_{}_{}_{}.json".format(principle, model_name, dataset_name, k)
+    path_to_file = "outputs/{}_{}_{}_{}.json".format(dimension, model_name, dataset_name, k)
+    print(path_to_file)
     try:
         response_nli_data, response_ground_truth_data = convert_data_to_given_format(path_to_file)
         print("DataFrames created successfully.")
@@ -447,16 +478,22 @@ if __name__ == '__main__':
         calc_nli_score(df, number_of_samples)
         lynx_hallucination(df, number_of_samples)
 
-    elif not open_ended:
+    elif open_ended:
+        number_of_samples = 4
         df = response_ground_truth_data
-        print("Calculating BERTScore")
+        #print("Calculating BERTScore")
         calc_bertscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
-        print("Calculating ROUGEScore")
+        #print("Calculating ROUGEScore")
         calc_rougescore(df['y_n'].to_list(), df['x_n'].to_list(), df)
-        print("Calculating BARTScore")
+        #print("Calculating BARTScore")
         calc_bartscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
-        print("Calculating ChatGPT-4o as Judge Score")
+        #print("Calculating ChatGPT-4o as Judge Score")
+        df = response_nli_data
         judge_gpt(df, number_of_samples, args.output_file, args.checkpoint_file, args.openai_api_key, args.restart)
 
     else:
             print("Error: invalid inputs.")
+
+if __name__ == '__main__':
+
+    main(args)

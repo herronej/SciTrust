@@ -48,7 +48,7 @@ def get_dataset(dimension, dataset_name, k=0, split=None):
             dataset = OpenBookQADataset(k=k, split=split)
 
         elif dataset_name == "ChemistryQA":
-            dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/chemistry_qa_chatgpt-4o.jsonl", split=split)
+            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/chemistry_qa_chatgpt-4o.jsonl", split=split)
 
         elif dataset_name == "PhysicsQA":
             dataset = QADataset("../scitrust_datasets/truthfulness_open_ended/physics_qa_chatgpt-4o.jsonl", split=split)

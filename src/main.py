@@ -74,7 +74,7 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-70B-Instruct")
         model = AutoModelForCausalLM.from_pretrained("meta-llama/Meta-Llama-3-70B-Instruct", device_map='auto')
     elif model_name == 'forge-l-instruct':
-        model_path = '../models/forge-l-instruct-base1'
+        model_path = 'models/forge-l-instruct-base1'
         from transformers import GPTNeoXForCausalLM, GPTNeoXTokenizerFast
         model = GPTNeoXForCausalLM.from_pretrained(model_path, device_map='auto')
         tokenizer = GPTNeoXTokenizerFast.from_pretrained(model_path)
@@ -85,7 +85,7 @@ def main():
         model = AutoModel.from_pretrained(model_path, device_map='auto', trust_remote_code=True)
     elif model_name == "darwin-7b":
         from transformers import LlamaTokenizer, LlamaForCausalLM, AutoTokenizer
-        model_path = "../models/darwin-7b"
+        model_path = "models/darwin-7b"
         if device=="cuda":
             torch_type = torch.float16
         else:
