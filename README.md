@@ -36,12 +36,15 @@ conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvi
 
 Step 3: Install SciTrust and Python dependencies
 
-```bash
+```
 pip install -e .
 ```
 
-### Data Setup
+### Data & Models Setup
 
+1. Create ```model``` folder in base directory
+2. Download FORGE-L and Darwin-7b
+3. Extract both models in ```model``` 
 
 ### Data and Code Description
 
@@ -52,10 +55,17 @@ The project data includes the following components:
 
 Activate environment
 ```bash
-conda activate pyt1.11
+conda activate scitrust
 ```
 
 ### Running SciTrust
+
+
+To run inference use the ```scitrust-run``` command: 
+
+```
+scitrust-run --perspective <trustworthiness-perspective> --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+```
 
 #### Trustworthiness Perspectives
 
