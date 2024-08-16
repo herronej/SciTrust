@@ -22,7 +22,7 @@ To set up the environment for this repository, please follow the steps below:
 
 Step 1: Create and activate a Conda environment 
 
-```bash
+```
 conda create -n scitrust python
 
 conda activate scitrust
@@ -54,7 +54,7 @@ The project data includes the following components:
 ## Quickstart 
 
 Activate environment
-```bash
+```
 conda activate scitrust
 ```
 
@@ -67,9 +67,19 @@ To run inference use the ```scitrust-run``` command:
 scitrust-run --perspective <trustworthiness-perspective> --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
 ```
 
-#### Trustworthiness Perspectives
+To get performance results use the ```scitrust-eval``` command: 
 
-#### Candidate Models
+```
+scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+```
+
+#### Supported Models
+
+- Llama3-70B-Instruct
+- FORGE-L
+- SciGLM-6B
+- Darwin-7B
+- Galactica-120B
 
 
 #### Examples by Perspective 
