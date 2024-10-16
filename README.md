@@ -1,5 +1,5 @@
 # SciTrust: Evaluating the Trustworthiness of Large Language Models for Science
-![SciTrust Cover Image](https://github.com/herronej/SciTrust/blob/main/cover-image.png)
+![SciTrust Cover Image](https://github.com/herronej/SciTrust/blob/main/cover-image.jpeg)
 
 Table of Contents
 =================
