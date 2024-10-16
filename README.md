@@ -73,13 +73,13 @@ To get performance results use the ```scitrust-eval``` command:
 scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
 ```
 
-#### Supported Models
+#### Supported Models & Flags
 
-- Llama3-70B-Instruct
-- FORGE-L
-- SciGLM-6B
-- Darwin-7B
-- Galactica-120B
+- Llama3-70B-Instruct: ```llama3-70b-instruct```
+- FORGE-L: ```forge-l-instruct```
+- SciGLM-6B: ```sciglm-6b```
+- Darwin-7B: ```darwin-7b```
+- Galactica-120B: ```galactica-120b```
 
 
 #### Examples by Perspective 
