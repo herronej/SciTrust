@@ -88,6 +88,10 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 - ARC Easy: ```ARC-E```
 - ARC Challenge: ```ARC-C```
 - MMLU College Chemistry: ```HT-CC```
+- MMLU College Computer Science: ```HT-CCS```
+- MMLU College Biology: ```HT-CB```
+- MMLU College Computer Science: ```HT-CCS```
+- MMLU College Physics: ```HT-CP```
 
 #### Examples by Perspective 
 
