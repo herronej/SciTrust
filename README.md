@@ -73,7 +73,7 @@ To get performance results use the ```scitrust-eval``` command:
 scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
 ```
 
-#### Supported Models & Flags
+#### Supported Models w/ Flags
 
 - Llama3-70B-Instruct: ```llama3-70b-instruct```
 - FORGE-L: ```forge-l-instruct```
@@ -81,6 +81,13 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 - Darwin-7B: ```darwin-7b```
 - Galactica-120B: ```galactica-120b```
 
+#### Supported Datasets w/ Flags
+
+- SciQ: ```SciQ```
+- GPQA Diamond: ```GPQA```
+- ARC Easy: ```ARC-E```
+- ARC Challenge: ```ARC-C```
+- MMLU College Chemistry: ```HT-CC```
 
 #### Examples by Perspective 
 
