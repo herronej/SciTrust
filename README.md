@@ -90,8 +90,12 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 - MMLU College Chemistry: ```HT-CC```
 - MMLU College Computer Science: ```HT-CCS```
 - MMLU College Biology: ```HT-CB```
-- MMLU College Computer Science: ```HT-CCS```
 - MMLU College Physics: ```HT-CP```
+- Open-ended Chemistry: ```ChemistryQA```
+- Open-ended Physics: ```PhysicsQA```
+- Open-ended Biology: ```BiologyQA```
+- Open-ended Computer Science: ```ComputerScienceQA```
+- LogicInference: ```'LogicInference'```
 
 #### Examples by Perspective 
 
