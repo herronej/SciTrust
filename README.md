@@ -108,8 +108,8 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 ###### Logical Reasoning
 
-scitrust-run --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
-scitrust-eval --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+```scitrust-run --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 ###### Hallucination
 
