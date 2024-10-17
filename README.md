@@ -95,7 +95,7 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 - Open-ended Physics: ```PhysicsQA```
 - Open-ended Biology: ```BiologyQA```
 - Open-ended Computer Science: ```ComputerScienceQA```
-- LogicInference: ```'LogicInference'```
+- LogicInference: ```LogicInference```
 
 #### Examples by Perspective 
 
@@ -103,11 +103,25 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 ###### Misinformation
 
+```scitrust-run --perspective 'truthfulness' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'truthfulness' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
 ###### Logical Reasoning
+
+scitrust-run --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+scitrust-eval --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
 
 ###### Hallucination
 
+scitrust-run --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+scitrust-eval --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+
+
 ###### Sycophancy
+
+scitrust-run --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+scitrust-eval --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+
 
 ##### Adversarial Robustness
 Coming soon
