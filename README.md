@@ -113,14 +113,14 @@ scitrust-eval --perspective 'logical_reasoning' --dataset <dataset-name> -k <num
 
 ###### Hallucination
 
-scitrust-run --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
-scitrust-eval --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+```scitrust-run --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 
 ###### Sycophancy
 
-scitrust-run --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
-scitrust-eval --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
+```scitrust-run --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 
 ##### Adversarial Robustness
