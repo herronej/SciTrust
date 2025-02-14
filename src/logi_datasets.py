@@ -13,13 +13,15 @@ import os
 import numpy as np
 
 class LogicInferenceDataset(Dataset):
-    def __init__(self, k=5, split=0):
+    def __init__(self, k=5, split=0, use_cot=False):
 
         self.k = k
-        dataset = load_dataset('KK04/LogicInference_OA') 
-        df_pandas = dataset['train'].to_pandas()
+        self.use_cot = use_cot
+        #dataset = load_dataset('KK04/LogicInference_OA')
+        dataset = load_from_disk("/lustre/orion/stf218/scratch/1eh/Trustworthiness-Scientific-LLMs/data/LI")
+        df_pandas = dataset['train'].to_pandas().sample(n=500, random_state=0)
         if split != None:
-            df_pandas = np.array_split(df_pandas, 1000)[split]
+            df_pandas = np.array_split(df_pandas, 100)[split]
 
         self.data, self.labels = self.preprocess(df_pandas)
 
@@ -42,7 +44,10 @@ class LogicInferenceDataset(Dataset):
       df = df.iloc[self.k:]
 
       prompt = """{}\n{}\n"""
-      prompt_final = """{}"""
+      if self.use_cot:
+          prompt_final = """{} Include your reasoning steps in the format of [Reasoning Steps] your reasoning steps [End]. Use this exact format. """
+      else:
+          prompt_final = """{}"""
 
       output_data = []
       labels = []
@@ -73,9 +78,13 @@ class LogicInferenceDataset(Dataset):
 
 
 class ReClorDataset(Dataset):
-    def __init__(self, k=5):
+    def __init__(self, k=5, use_cot=False, split=None):
 
         self.k = k
+        self.use_cot = use_cot
+
+        if split != None:
+            df_pandas = np.array_split(df_pandas, 100)[split]
 
         df_pandas = pd.read_json('reclor_data/train.json') #dataset['train'].to_pandas()
         self.data, self.labels = self.preprocess(df_pandas)
@@ -98,8 +107,11 @@ class ReClorDataset(Dataset):
       df_first_k = df.iloc[:self.k]
       df = df.iloc[self.k:]
 
-      prompt = """\nWhat is the correct answer to this question:\n{}\nQuestion: {}Answer: {}"""
-      prompt_final = """\nWhat is the correct answer to this question:\n{}\nQuestion: {}Answer:"""
+      prompt = """\nWhat is the correct answer to this question?\n{}\nQuestion: {}Answer: {}"""
+      if self.use_cot:
+          prompt_final = """\nWhat is the correct answer to this question? Include your reasoning steps in the format of [Reasoning Steps] your reasoning steps [End]. Use this exact format. \nQuestion: {}\nAnswer:"""
+      else:
+          prompt_final = """\nWhat is the correct answer to this question:?\n{}\nQuestion: {}Answer:"""
 
       output_data = []
       labels = []
@@ -139,9 +151,14 @@ class ReClorDataset(Dataset):
 
 
 class LogiQADataset(Dataset):
-    def __init__(self, k=5):
+    def __init__(self, k=5, use_cot = False, split=None):
 
         self.k = k
+
+        self.use_cot = use_cot
+
+        if split != None:
+            df_pandas = np.array_split(df_pandas, 100)[split]
 
         dataset = load_dataset('lucasmccabe/logiqa', split='train')
 
@@ -166,8 +183,12 @@ class LogiQADataset(Dataset):
       df_first_k = df.iloc[:self.k]
       df = df.iloc[self.k:]
 
-      prompt = """\nWhat is the correct answer to this question:\n{}\nQuestion: {}Answer: {}"""
-      prompt_final = """\nWhat is the correct answer to this question:\n{}\nQuestion: {}Answer:"""
+
+      prompt = """\nWhat is the correct answer to this question?\n{}\nQuestion: {}Answer: {}"""
+      if self.use_cot:
+          prompt_final = """\nWhat is the correct answer to this question? Include your reasoning steps in the format of [Reasoning Steps] your reasoning steps [End]. Use this exact format. \nQuestion: {}\nAnswer:"""
+      else:
+          prompt_final = """\nWhat is the correct answer to this question:?\n{}\nQuestion: {}Answer:"""
       choices = ['(A)', '(B)', '(C)', '(D)', '(E)']
       output_data = []
       labels = []

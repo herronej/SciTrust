@@ -11,56 +11,56 @@ from .logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
 
-def get_dataset(perspective, dataset_name, k=0, split=None):
+def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False):
 
     if perspective == 'truthfulness_misinformation':
         if dataset_name == 'SciQ':
-	        dataset = SciQDataset(k=k, split=split)
+	        dataset = SciQDataset(k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'GPQA':
-    	    dataset = GPQADataset(k=k,  split=split)  #load_dataset("Idavidrein/gpqa", "gpqa_main")
+    	    dataset = GPQADataset(k=k,  split=split, use_cot=use_cot)
 
         elif dataset_name == 'ARC-E':
-            dataset = ARCDataset("Easy", k=k, split=split)
+            dataset = ARCDataset("Easy", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'ARC-C':
-            dataset = ARCDataset("Challenge", k=k, split=split)
+            dataset = ARCDataset("Challenge", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CC':
-        	dataset = HendrycksDataset("CC", k=k, split=split)
+        	dataset = HendrycksDataset("CC", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CCS':
-        	dataset = HendrycksDataset("CCS", k=k, split=split)
+        	dataset = HendrycksDataset("CCS", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CM':
-        	dataset = HendrycksDataset("CM", k=k, split=split)
+        	dataset = HendrycksDataset("CM", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CB':
-        	dataset = HendrycksDataset("CB", k=k, split=split)
+        	dataset = HendrycksDataset("CB", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CP':
-        	dataset = HendrycksDataset("CP", k=k, split=split)
+        	dataset = HendrycksDataset("CP", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-S':
-        	dataset = HendrycksDataset("S", k=k, split=split)
+        	dataset = HendrycksDataset("S", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'OBQA':
             dataset = OpenBookQADataset(k=k, split=split)
 
         elif dataset_name == "ChemistryQA":
-            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Chemistry_qa_rt2.jsonl", split=split)
+            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Chemistry_qa_rt2.jsonl", split=split, use_cot=use_cot)
 
         elif dataset_name == "PhysicsQA":
-            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Physics_qa_rt2.jsonl", split=split)
+            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Physics_qa_rt2.jsonl", split=split, use_cot=use_cot)
 
         elif dataset_name == "BiologyQA":
-            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Biology_qa_rt2.jsonl", split=split)
+            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Biology_qa_rt2.jsonl", split=split, use_cot=use_cot)
 
         elif dataset_name == "ComputerScienceQA":
-            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Computer Science_qa_rt2.jsonl", split=split)
+            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Computer Science_qa_rt2.jsonl", split=split, use_cot=use_cot)
 
-	elif dataset_name == "MaterialsScienceQA":
-            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Materials Science_qa_rt2.jsonl", split=split)
+        elif dataset_name == "MaterialsScienceQA":
+            dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Materials Science_qa_rt2.jsonl", split=split, use_cot=use_cot)
 
         else:
             print("Dataset {} not supported. Supported datasets: SciQ, GPQA, ARC-E, ARC-C, OBQA, ChemistryQA, PhysicsQA, BiologyQA, ComputerScienceQA, MaterialsScienceQA.".format(dataset_name))
@@ -169,13 +169,13 @@ def get_dataset(perspective, dataset_name, k=0, split=None):
     elif perspective == "truthfulness_logical_reasoning":
 
         if dataset_name == 'LogicInference':
-            dataset = LogicInferenceDataset(k=k, split=split)
+            dataset = LogicInferenceDataset(k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'ReClor':
-            dataset = ReClorDataset(k=k)
+            dataset = ReClorDataset(k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'LogiQA':
-            dataset = LogiQADataset(k=k)
+            dataset = LogiQADataset(k=k, split=split, use_cot=use_cot)
 
         else:
             print("Dataset {} not supported. Supported datasets: LogicInference, ReClor, and LogiQA.".format(dataset_name))
@@ -209,11 +209,15 @@ def append_record(record, filename):
         json.dump(record, f)
         f.write('\n')
 
-def generate_samples(batch, tokenizer, model, device, openended=False):
+def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=False):
     gen_text_samples_batch = []
     #print('len(batch)', len(batch))
-    if openended:
+    if openended and use_cot:
+        max_new_tokens=500
+    elif openended:
         max_new_tokens=300
+    elif not openended and use_cot:
+        max_new_tokens = 203
     else:
         max_new_tokens=3
 
