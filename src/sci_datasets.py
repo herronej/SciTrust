@@ -198,7 +198,7 @@ class SciQDataset(Dataset):
 
 
 class GPQADataset(Dataset):
-    def __init__(self, k=5, split=0, sycophancy=False, use_cot=False):
+    def __init__(self, k=5, split=None, sycophancy=False, use_cot=False):
 
         self.k = k
 

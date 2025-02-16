@@ -19,6 +19,24 @@ import os
 from transformers import pipeline
 import ast
 import requests
+from huggingface_hub import InferenceClient
+
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
+
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+    print("Found cuda")
+else:
+    device = torch.device("cpu")
+    print("Couldn't find cuda")
+
+def parse_json_garbage(s):
+    s = s[next(idx for idx, c in enumerate(s) if c in "{["):]
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError as e:
+        return json.loads(s[:e.pos])
 
 def save_checkpoint(batch_idx, output_path, checkpoint_path):
     checkpoint = {
@@ -55,13 +73,36 @@ def send_prompt_to_chatgpt(prompt, api_key):
     else:
         raise Exception(f"Failed to fetch response: {response.text}")
 
+def send_prompt_to_huggingface(prompt, api_key):
+    messages = [
+            {   'provider': "together",
+        "role": "user",
+        "content": prompt,
+    }]
+
+    client = InferenceClient(
+    #provider="together",
+    model="meta-llama/Meta-Llama-3-70B-Instruct",
+    token=api_key,
+    )
+
+    completion = client.chat_completion(messages)
+
+    return completion.choices[0].message.content
+
+def generate_response_from_model(prompt, model, tokenizer):
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+    gen_tokens = model.generate(input_ids, do_sample=True, temperature=0.7, max_new_tokens=256)
+    gen_text = tokenizer.batch_decode(gen_tokens[:, input_ids.shape[1]:])[0]
+    return gen_text
+
 def append_record(record, filename):
 
     with open(filename, 'a') as f:
         json.dump(record, f)
         f.write('\n')
 
-def judge_gpt(df, number_of_samples, output_file, checkpoint_file, api_key, restart):
+def judge_gpt(df, number_of_samples, output_file, checkpoint_file, judge_llm, api_key, restart):
 
     PROMPT = '''A scientific QUESTION is provided below, accompanied by its CORRECT_ANSWER and a GENERATED_ANSWER from a large language model. Evaluate the accuracy of the GENERATED_ANSWER based on its faithfulness to the CORRECT_ANSWER. Assign a rating as a float between 0 and 10, where:
     0 = The GENERATED_ANSWER is entirely inaccurate or contradicts the CORRECT_ANSWER.
@@ -85,7 +126,8 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, api_key, rest
     --
 
     Return your output in json format only with the keys "justification" and "rating":
-    {{"justification": <your brief justification>, "rating": <your final rating>}}
+    {{"justification": <your brief justification>, "rating": <your final rating>}} 
+    Use this exact format.
     '''
 
     main_answer = []
@@ -102,6 +144,12 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, api_key, rest
 
     print(df.head())
 
+    if judge_llm == 'llama3.3':
+        model_path = '../abstract_classification/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/snapshots/5825c9120fc701a0b7d9a30d61005f2a09466b74/'
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForCausalLM.from_pretrained(model_path, device_map='auto')
+
     for i in tqdm(range(len(df))): #range(len(sentences))):
 
         if i < start_idx:
@@ -112,18 +160,25 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, api_key, rest
         #print(df.keys())
         question = df['Question'].iloc[i]
         answer = df['Sample 1'].iloc[i]
+        print("question", question, "answer", answer)
         for sample in samples:
             prompt = PROMPT.format(question, answer, sample)
 
-            response = send_prompt_to_chatgpt(prompt, api_key)
-            print(response['choices'][0]['message']['content'])
-            response_str = response['choices'][0]['message']['content']
-            begin, end = response_str.find('{'), response_str.rfind('}')
-            result = response_str[begin: end+1]
+            if judge_llm == "llama3.3":
+                response_str = generate_response_from_model(prompt, model, tokenizer)
+                #print(response_str)
+            else:
+                response = send_prompt_to_chatgpt(prompt, api_key)
+                print(response['choices'][0]['message']['content'])
+                response_str = response['choices'][0]['message']['content']
+            #begin, end = response_str.find('{'), response_str.rfind('}')
+            #result = response_str[begin: end+1]
             #result = re.search('{.*}', response['choices'][0]['message']['content']).group(0)
-            print(result)
+            #print(result)
             try:
-                result = json.loads(result)
+                result = parse_json_garbage(response_str)
+                print('parsed_str', result)
+                #result = json.loads(result)
                 all_scores.append(float(result["rating"]))
                 justification_str = result["justification"]
             except:
@@ -437,14 +492,16 @@ def main():
     parser.add_argument('--checkpoint_file', type=str, default='checkpoint.json')
     parser.add_argument('--ground_truth_metrics_file', type=str, default='groundtruthmetrics.csv')
     parser.add_argument('--selfcheck_nli_scores_file', type=str, default='selfcheck-nli-score.csv')
-    parser.add_argument('--openai_api_key', type=str, default='your-openai-key-here')
-
+    parser.add_argument('--api_key', type=str, default='your-openai-key-here')
+    parser.add_argument('--from_file', type=str, default=None)
+    parser.add_argument('--judge_llm', type=str, default='llama3.3')
+    parser.add_argument('--use_cot', action='store_true')
 
     args = parser.parse_args()
 
-    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", 'LogicInference']
+    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference']
 
-    if args.dataset in openended_datasets:
+    if args.dataset in openended_datasets or args.from_file:
         open_ended = True
     else:
         open_ended = False
@@ -453,8 +510,16 @@ def main():
     model_name = args.model
     dataset_name = args.dataset
     k = args.k
+    use_cot = args.use_cot
 
-    path_to_file = "outputs/{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k)
+    if args.from_file != None:
+        path_to_file = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
+        output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
+        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
+    else:
+        path_to_file = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
+        output_file = "outputs/eval_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
+        checkpoint_file = "checkpoints/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
     print(path_to_file)
     try:
         response_nli_data, response_ground_truth_data = convert_data_to_given_format(path_to_file)
@@ -489,8 +554,8 @@ def main():
         calc_bartscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
         #print("Calculating ChatGPT-4o as Judge Score")
         df = response_nli_data
-        judge_gpt(df, number_of_samples, args.output_file, args.checkpoint_file, args.openai_api_key, args.restart)
-
+        judge_gpt(df, number_of_samples, args.output_file, args.checkpoint_file, args.judge_llm, args.api_key, args.restart)
+        
     else:
             print("Error: invalid inputs.")
 

@@ -10,11 +10,11 @@ from .sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset
 from .logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
-from .utils import get_dataset, append_record, generate_samples, save_checkpoint, load_checkpoint
+from .utils import get_dataset, append_record, generate_samples, generate_samples_from_api, save_checkpoint, load_checkpoint
 import numpy as np
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -39,6 +39,8 @@ def main():
     parser.add_argument('--split', type=int, default=None)
     parser.add_argument('--perspective', type=str, default=None)
     parser.add_argument('--use_cot', action='store_true')
+    parser.add_argument('--api_key', type=str, default=None)
+    parser.add_argument('--from_file', type=str, default=None)
 
     args = parser.parse_args()
     print('#devices =', torch.cuda.device_count())
@@ -53,11 +55,13 @@ def main():
     restart = args.restart
     split = args.split
     perspective = args.perspective
-    openended = dataset_name in openended_datasets
+    from_file = args.from_file
+    openended = (dataset_name in openended_datasets) or (from_file != '')
     use_cot = args.use_cot
+    api_key = args.api_key
     #device = args.device
 
-    dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot)
+    dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot, from_file=from_file)
 
     if not os.path.exists("outputs"):
         os.makedirs("outputs")
@@ -65,16 +69,23 @@ def main():
     if not os.path.exists("checkpoints"):
         os.makedirs("checkpoints")
 
-    output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
-    checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, split, use_cot)
+    if from_file != None:
+        output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, from_file, k, use_cot)
+        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, from_file, k, split, use_cot)
+    else:
+        output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
+        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, split, use_cot)
     features = ['x', 'y', 'gen1', 'gen2', 'gen3', 'gen4']#, 'gen5']
 
 
     generation_data = []
-    if model_name == 'llama3-70b-instruct':
+    if model_name == 'gpt-o1':
+        from openai import OpenAI
+    elif model_name == 'llama3.3-70b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
-        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-70B-Instruct")
-        model = AutoModelForCausalLM.from_pretrained("meta-llama/Meta-Llama-3-70B-Instruct", device_map='auto')
+        model_name = "../abstract_classification/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/snapshots/5825c9120fc701a0b7d9a30d61005f2a09466b74/" #"meta-llama/Meta-Llama-3-70B-Instruct"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'forge-l-instruct':
         model_path = '/lustre/orion/proj-shared/stf218/junqi/chathpc/forge-l-instruct-base1' #'models/forge-l-instruct-base1'
         from transformers import GPTNeoXForCausalLM, GPTNeoXTokenizerFast
@@ -119,8 +130,10 @@ def main():
 
         if batch_idx < start_idx:
             continue
-
-        gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
+        if model_name == "gpt-o1":
+            gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
+        else:
+            gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
         for sample_data in gen_text_samples_batch:
             append_record(dict(zip(features, sample_data)), output_path)
         save_checkpoint(batch_idx+1, output_path, checkpoint_path)  # Save checkpoint after each batch

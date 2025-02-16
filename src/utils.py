@@ -10,8 +10,9 @@ from .sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset
 from .logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
+from openai import OpenAI
 
-def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False):
+def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_file=''):
 
     if perspective == 'truthfulness_misinformation':
         if dataset_name == 'SciQ':
@@ -61,6 +62,9 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False):
 
         elif dataset_name == "MaterialsScienceQA":
             dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Materials Science_qa_rt2.jsonl", split=split, use_cot=use_cot)
+
+        elif from_file != '':
+            dataset = QADataset(from_file, split=split, use_cot=use_cot)
 
         else:
             print("Dataset {} not supported. Supported datasets: SciQ, GPQA, ARC-E, ARC-C, OBQA, ChemistryQA, PhysicsQA, BiologyQA, ComputerScienceQA, MaterialsScienceQA.".format(dataset_name))
@@ -239,6 +243,54 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
         gen_text_samples_batch.append(sample_data)
     #print(len(gen_text_samples_batch))
     return gen_text_samples_batch
+
+def send_prompt_to_chatgpt(prompt, api_key, max_tokens):
+
+    client = OpenAI(
+        api_key=api_key,  # This is the default and can be omitted
+    )
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="o1",
+        #max_completion_tokens=max_tokens,
+    )
+
+    response = chat_completion.choices[0].message.content #requests.post(url, json=data, headers=headers)
+    #if response.status_code == 200:
+    return response
+
+def generate_samples_from_api(batch, model_name, api_key, openended, use_cot):
+
+    gen_text_samples_batch = []
+    #print('len(batch)', len(batch))
+    if openended and use_cot:
+        max_new_tokens=500
+    elif openended:
+        max_new_tokens=300
+    elif not openended and use_cot:
+        max_new_tokens = 203
+    else:
+        max_new_tokens=3
+
+    for d in zip(batch[0], batch[1]):
+        gen_text_samples = []
+        for n in range(4):
+            print('n', n)
+            if model_name == 'gpt-o1':
+            	gen_text = send_prompt_to_chatgpt(d[0], api_key, max_new_tokens)
+            gen_text_samples.append(gen_text)
+        sample_data = [d[0], d[1]] + gen_text_samples
+        print('sample_data', sample_data)
+        gen_text_samples_batch.append(sample_data)
+    #print(len(gen_text_samples_batch))
+    return gen_text_samples_batch
+
 
 def save_checkpoint(batch_idx, output_path, checkpoint_path):
     checkpoint = {
