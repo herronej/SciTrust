@@ -1,17 +1,17 @@
 import pandas as pd
 import json
 from tqdm import tqdm
-from rouge_score import rouge_scorer
+#from rouge_score import rouge_scorer
 import pandas as pd
 import numpy as np
-from bert_score import score
-from sentence_transformers import SentenceTransformer, util
-from selfcheckgpt.modeling_selfcheck import SelfCheckNLI
+#from bert_score import score
+#from sentence_transformers import SentenceTransformer, util
+#from selfcheckgpt.modeling_selfcheck import SelfCheckNLI
 import torch
 import pandas as pd
-import nltk
-from nltk.tokenize import sent_tokenize
-nltk.download('punkt')
+#import nltk
+#from nltk.tokenize import sent_tokenize
+#nltk.download('punkt')
 import argparse
 import re
 import statistics
@@ -269,6 +269,8 @@ def lynx_hallucination(df, number_of_samples):
     return df
 
 def calc_nli_score(df, number_of_samples):
+    from nltk.tokenize import sent_tokenize
+    from selfcheckgpt.modeling_selfcheck import SelfCheckNLI
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     selfcheck_nli = SelfCheckNLI(device=device)
     main_answer = []
@@ -323,6 +325,7 @@ def calc_nli_score(df, number_of_samples):
     return df
 
 def calc_bertscore(y_list, x_list, df, lang="en", model_type="bert-large-uncased"):
+    from bert_score import score
     P, R, F1 = score(y_list, x_list, lang=lang, verbose=True, model_type=model_type)
     df['Bert F1 Score'] = F1
     df['Bert Precision'] = P
@@ -343,6 +346,7 @@ def calc_bertscore(y_list, x_list, df, lang="en", model_type="bert-large-uncased
     return df
 
 def calc_rougescore(y,x,df):
+    from rouge_score import rouge_scorer
     scorer = rouge_scorer.RougeScorer(['rouge1', 'rougeL'], use_stemmer=True)
     # x = df['x'].to_list()
     # y = df['y'].to_list()
@@ -397,6 +401,7 @@ def calc_rougescore(y,x,df):
     return df
 
 def calc_bartscore(y,x,df):
+    from sentence_transformers import SentenceTransformer, util
     bart_model = SentenceTransformer('facebook/bart-large-cnn')
     bartres = []
     for i in tqdm(range(len(df))):
@@ -515,7 +520,7 @@ def main():
     if args.from_file != None:
         path_to_file = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
         output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
-        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
+        checkpoint_path = "checkpoints/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
     else:
         path_to_file = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
         output_file = "outputs/eval_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)

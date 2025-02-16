@@ -270,11 +270,11 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot):
     gen_text_samples_batch = []
     #print('len(batch)', len(batch))
     if openended and use_cot:
-        max_new_tokens=500
+        max_new_tokens=600
     elif openended:
         max_new_tokens=300
     elif not openended and use_cot:
-        max_new_tokens = 203
+        max_new_tokens = 303
     else:
         max_new_tokens=3
 

@@ -17,9 +17,9 @@ class ARCDataset(Dataset):
         self.use_cot = use_cot
 
         if subset == 'Easy':
-            dataset = load_dataset('allenai/ai2_arc', 'ARC-Easy')
+            dataset = load_dataset('allenai/ai2_arc', 'ARC-Easy', split='train')
         else:
-            dataset = load_dataset('allenai/ai2_arc', 'ARC-Challenge')
+            dataset = load_dataset('allenai/ai2_arc', 'ARC-Challenge', split='train')
 
         df_pandas = dataset.to_pandas()
         if split != None:
@@ -109,7 +109,7 @@ class SciQDataset(Dataset):
         dataset = load_dataset('allenai/sciq', split='train')
         df_pandas = dataset.to_pandas()
         if split != None:
-            df_pandas = np.array_split(df_pandas, 100)[split]
+            df_pandas = np.array_split(df_pandas, 200)[split]
         self.data, self.labels = self.preprocess(df_pandas)
 
     def __len__(self):
@@ -394,19 +394,19 @@ class HendrycksDataset(Dataset):
         self.use_cot = use_cot
 
         if subset == "CC":
-            dataset = load_dataset('cais/mmlu', 'college_chemistry')
+            dataset = load_dataset('cais/mmlu', 'college_chemistry', split='test')
 
         elif subset == 'CCS':
-            dataset = load_dataset('cais/mmlu', 'college_computer_science')
+            dataset = load_dataset('cais/mmlu', 'college_computer_science', split='test')
 
         elif subset == 'CB':
-            dataset = load_dataset('cais/mmlu', 'college_biology')
+            dataset = load_dataset('cais/mmlu', 'college_biology', split='test')
 
         elif subset == 'CM':
-            dataset = load_dataset('cais/mmlu', 'college_mathematics')
+            dataset = load_dataset('cais/mmlu', 'college_mathematics', split='test')
 
         elif subset == 'CP':
-            dataset = load_dataset('cais/mmlu', 'college_physics')
+            dataset = load_dataset('cais/mmlu', 'college_physics', split='test')
 
         df_pandas = dataset.to_pandas()
         if split != None:
