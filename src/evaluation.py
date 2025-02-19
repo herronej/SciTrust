@@ -22,7 +22,7 @@ import requests
 from huggingface_hub import InferenceClient
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
 
 if torch.cuda.is_available():
     device = torch.device("cuda")

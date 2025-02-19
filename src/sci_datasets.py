@@ -510,7 +510,9 @@ class SciEthicsDataset(Dataset):
 
         elif subset == 'HS':
             df_pandas = pd.read_csv(os.path.join(path, 'human_subjects.csv'), names=['scenario', 'label'])
-
+        
+        elif subset == 'GM':
+            df_pandas = pd.read_csv(os.path.join(path, 'genetic_modification.csv'), names=['scenario', 'label'])
 
         #df_pandas = dataset['train'].to_pandas()
         self.data, self.labels = self.preprocess(df_pandas)
