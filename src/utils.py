@@ -143,7 +143,7 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
 
     elif "scientific_ethics" in perspective:
 
-        if perspective == "scientific_ethics_full":
+        if dataset_name == "scientific_ethics_full":
             dataset = SciEthicsDataset(k=k)
 
         elif dataset_name == "scientific_ethics_ai":

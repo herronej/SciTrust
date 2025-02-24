@@ -75,13 +75,26 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 #### Supported Models w/ Flags
 
-- Llama3-70B-Instruct: ```llama3.3-70b-instruct```
+- OpenAIs o1: ```gpt-o1```
+- Llama3.3-70B-Instruct: ```llama3.3-70b-instruct```
 - FORGE-L: ```forge-l-instruct```
 - SciGLM-6B: ```sciglm-6b```
 - Darwin1.5-7B: ```darwin1.5-7b```
 - Galactica-120B: ```galactica-120b```
 
-#### Supported Datasets w/ Flags
+
+#### Examples by Perspective 
+
+##### Truthfulness
+
+###### Misinformation
+
+```scitrust-run --perspective 'truthfulness_misinformation' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
+```scitrust-eval --perspective 'truthfulness_misinformation' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
+
+###### Supported Datasets w/ Flags
 
 - SciQ: ```SciQ```
 - GPQA Diamond: ```GPQA```
@@ -97,21 +110,18 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 - Open-ended Computer Science: ```ComputerScienceQA```
 - LogicInference: ```LogicInference```
 
-#### Examples by Perspective 
-
-##### Truthfulness
-
-###### Misinformation
-
-```scitrust-run --perspective 'truthfulness_misinformation' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
-
-```scitrust-eval --perspective 'truthfulness_misinformatiodn' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 ###### Logical Reasoning
 
 ```scitrust-run --perspective 'truthfulness_logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 ```scitrust-eval --perspective 'truthfulness_logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
+###### Supported Datasets w/ Flags
+
+- ReClor: ```ReClor```
+- LogiQA: ```LogiQA```
+- LogicInference: ```LogicInference```
 
 ###### Hallucination
 
@@ -126,12 +136,57 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 ```scitrust-eval --perspective 'truthfulness_sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
+#### Supported Datasets w/ Flags
+
+- SciQ: ```SciQ```
+- GPQA Diamond: ```GPQA```
+- ARC Easy: ```ARC-E```
+- ARC Challenge: ```ARC-C```
 
 ##### Adversarial Robustness
-Coming soon
+
+###### Multiple-Choice Datasets
+```scitrust-run --perspective 'adv_robustness_textfooler' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-eval --perspective 'adv_robustness_textfooler' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-run --perspective 'adv_robustness_textbugger' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-eval --perspective 'adv_robustness_textbugger' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-run --perspective 'adv_robustness_stresstest' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-eval --perspective 'adv_robustness_stresstest' --dataset <dataset-name> --model <model-name>```
+
+###### Supported Datasets w/ Flags
+- SciQ: ```SciQ```
+- GPQA Diamond: ```GPQA```
+- ARC Challenge: ```ARC-C```
+
+
+###### Open-ended Datasets
+Coming Soon
+
+##### Safety
+Coming Soon
 
 ##### Scientific Ethics
-Coming coon
 
-# Citation
+New! February 2025
+
+```scitrust-run --perspective 'scientific_ethics' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
+```scitrust-eval --perspective 'scientific_ethics' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
+###### Supported Datasets w/ Flags
+- AI and Machine Learning: ```scientific_ethics_ai``` 
+- Animal Testing: ```scientific_ethics_animal_testing```
+- Bias and Objectivity: ```scientific_ethics_bias_objectivity```
+- Data Privacy: ```scientific_ethics_data_privacy```
+- Dual Use Research: ```scientific_ethics_dual_use_research```
+- Environmental Impact: ```scientific_ethics_environmental_impact```
+- Human Subjects: ```scientific_ethics_human_subjects```
+- Genetic Modification: ```scientific_ethics_genetic_modification```
+
+# Citations
 Coming soon
