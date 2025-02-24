@@ -75,10 +75,10 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 #### Supported Models w/ Flags
 
-- Llama3-70B-Instruct: ```llama3-70b-instruct```
+- Llama3-70B-Instruct: ```llama3.3-70b-instruct```
 - FORGE-L: ```forge-l-instruct```
 - SciGLM-6B: ```sciglm-6b```
-- Darwin-7B: ```darwin-7b```
+- Darwin1.5-7B: ```darwin1.5-7b```
 - Galactica-120B: ```galactica-120b```
 
 #### Supported Datasets w/ Flags
@@ -103,28 +103,28 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 ###### Misinformation
 
-```scitrust-run --perspective 'truthfulness' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-run --perspective 'truthfulness_misinformation' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
-```scitrust-eval --perspective 'truthfulness' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'truthfulness_misinformatiodn' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 ###### Logical Reasoning
 
-```scitrust-run --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-run --perspective 'truthfulness_logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
-```scitrust-eval --perspective 'logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'truthfulness_logical_reasoning' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 ###### Hallucination
 
-```scitrust-run --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-run --perspective 'truthfulness_hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
-```scitrust-eval --perspective 'hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'truthfulness_hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 
 ###### Sycophancy
 
-```scitrust-run --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-run --perspective 'truthfulness_sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
-```scitrust-eval --perspective 'sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'truthfulness_sycophancy' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
 
 ##### Adversarial Robustness
