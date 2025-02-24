@@ -14,7 +14,7 @@ from .utils import get_dataset, append_record, generate_samples, generate_sample
 import numpy as np
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -56,10 +56,13 @@ def main():
     split = args.split
     perspective = args.perspective
     from_file = args.from_file
-    openended = (dataset_name in openended_datasets) or (from_file != '')
+    openended = (dataset_name in openended_datasets) or (from_file != None)
     use_cot = args.use_cot
     api_key = args.api_key
     #device = args.device
+
+    print("openended", openended)
+    print("use_cot", use_cot)
 
     dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot, from_file=from_file)
 
@@ -87,7 +90,7 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'forge-l-instruct':
-        model_path = 'models/forge-l-instruct-base1' #'/lustre/orion/proj-shared/stf218/junqi/chathpc/forge-l-instruct-base1' #'models/forge-l-instruct-base1'
+        model_path = '/lustre/orion/proj-shared/stf218/junqi/chathpc/forge-l-instruct-base1' #'models/forge-l-instruct-base1'
         from transformers import GPTNeoXForCausalLM, GPTNeoXTokenizerFast
         model = GPTNeoXForCausalLM.from_pretrained(model_path, device_map='auto')
         tokenizer = GPTNeoXTokenizerFast.from_pretrained(model_path)

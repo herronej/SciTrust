@@ -146,7 +146,7 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
         if perspective == "scientific_ethics_full":
             dataset = SciEthicsDataset(k=k)
 
-        elif perspective == "scientific_ethics_ai":
+        elif dataset_name == "scientific_ethics_ai":
             dataset = SciEthicsDataset(subset='AI', k=k)
 
         elif dataset_name == 'scientific_ethics_animal_testing':
@@ -166,6 +166,10 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
 
         elif dataset_name == 'scientific_ethics_human_subjects':
             dataset = SciEthicsDataset(subset='HS', k=k)
+
+        elif dataset_name == 'scientific_ethics_genetic_modification':
+            dataset = SciEthicsDataset(subset='GM', k=k)
+
         else:
             print("Dataset {} not supported. Supported datasets: scientific_ethics_full, scientific_ethics_ai, scientific_ethics_animal_testing, scientific_ethics_bias_objectivity, scientific_ethics_data_privacy, scientific_ethics_dual_use_research, scientific_ethics_environmental_impact, scientific_ethics_human_subjects".format(dataset_name))
             exit()
@@ -217,11 +221,11 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     gen_text_samples_batch = []
     #print('len(batch)', len(batch))
     if openended and use_cot:
-        max_new_tokens=500
+        max_new_tokens=600
     elif openended:
         max_new_tokens=300
     elif not openended and use_cot:
-        max_new_tokens = 203
+        max_new_tokens = 303
     else:
         max_new_tokens=3
 

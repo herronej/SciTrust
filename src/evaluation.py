@@ -424,10 +424,10 @@ def calc_accuracy(y,x,df):
     for i in tqdm(range(len(df))):
         x[i] = re.sub('[^A-Za-z0-9]+', ' ', x[i]).strip().lower()
         y[i] = re.sub('[^A-Za-z0-9]+', ' ', y[i]).lower()
-        print('x', x[i])
-        print('y', y[i])
+        #print('x', x[i])
+        #print('y', y[i])
         correct = int(bool(re.search(rf'\b{str(x[i])}\b', str(y[i]))))
-        print('correct', correct)
+        #print('correct', correct)
         accuracies.append(correct)
     df['Accuracy'] = accuracies
 

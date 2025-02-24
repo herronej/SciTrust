@@ -83,10 +83,11 @@ class ReClorDataset(Dataset):
         self.k = k
         self.use_cot = use_cot
 
+        df_pandas = pd.read_json('reclor_data/train.json') #dataset['train'].to_pandas()
+
         if split != None:
             df_pandas = np.array_split(df_pandas, 100)[split]
 
-        df_pandas = pd.read_json('reclor_data/train.json') #dataset['train'].to_pandas()
         self.data, self.labels = self.preprocess(df_pandas)
 
 
@@ -157,12 +158,13 @@ class LogiQADataset(Dataset):
 
         self.use_cot = use_cot
 
-        if split != None:
-            df_pandas = np.array_split(df_pandas, 100)[split]
-
         dataset = load_dataset('lucasmccabe/logiqa', split='train')
 
         df_pandas = dataset.to_pandas()
+
+        if split != None:
+            df_pandas = np.array_split(df_pandas, 100)[split]
+
         self.data, self.labels = self.preprocess(df_pandas)
 
 
