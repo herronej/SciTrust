@@ -16,6 +16,7 @@ import numpy as np
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
 
+
 if torch.cuda.is_available():
     device = torch.device("cuda")
     print("Found cuda")
@@ -24,6 +25,14 @@ else:
     print("Couldn't find cuda")
 
 
+'''rank = int(os.environ["RANK"])
+device = torch.device(f"cuda:{rank}")
+torch.distributed.init_process_group("nccl", device_id=device)
+
+local_rank = os.getenv("LOCAL_RANK")
+device_string = "cuda:" + str(local_rank)
+print("device_string", device_string)
+'''
 def main():
 
     #print(args)
@@ -84,9 +93,14 @@ def main():
     generation_data = []
     if model_name == 'gpt-o1':
         from openai import OpenAI
+    elif model_name == 'llama3.1-405b-instruct':
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        model_name = "meta-llama/Llama-3.1-405B-Instruct"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, tp_plan="auto") #device_map='auto')
     elif model_name == 'llama3.3-70b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
-        model_name = "../abstract_classification/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/snapshots/5825c9120fc701a0b7d9a30d61005f2a09466b74/" #"meta-llama/Meta-Llama-3-70B-Instruct"
+        model_name = "meta-llama/Meta-Llama-3.3-70B-Instruct"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'forge-l-instruct':
