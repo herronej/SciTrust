@@ -91,9 +91,7 @@ def main():
 
 
     generation_data = []
-    if model_name == 'gpt-o1':
-        from openai import OpenAI
-    elif model_name == 'llama3.1-405b-instruct':
+    if model_name == 'llama3.1-405b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
         model_name = "meta-llama/Llama-3.1-405B-Instruct"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -127,7 +125,7 @@ def main():
         from transformers import AutoTokenizer, AutoModelForCausalLM
         tokenizer = AutoTokenizer.from_pretrained("facebook/galactica-120b")
         model = AutoModelForCausalLM.from_pretrained("facebook/galactica-120b", device_map='auto')
-    else:
+    elif not (model_name != 'gpt-o1' or model_name != 'claude-sonnet-3.7'):
         print("Model name {} invalid. Supported models: llama3-70b-instruct, forge-l-instruct, sciglm-6b, darwin-7b, galactica-120b".format(model_name))
         exit()
 
@@ -147,7 +145,7 @@ def main():
 
         if batch_idx < start_idx:
             continue
-        if model_name == "gpt-o1":
+        if model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7':
             gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
         else:
             gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
