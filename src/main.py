@@ -56,7 +56,7 @@ def main():
     print('available =', torch.cuda.is_available())
 
 
-    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference']
+    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', "HarmBench-CHEM-BIO", "HarmBench-CYBERCRIME-INTRUSION"]
 
     dataset_name = args.dataset
     model_name = args.model #'forge'

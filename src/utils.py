@@ -6,8 +6,8 @@ import random
 from tqdm.auto import tqdm
 from datasets import load_dataset
 import pandas as pd
-from .sci_datasets import SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset, AdvDataset, QADataset
-from .logi_datasets import LogicInferenceDataset, ReClorDataset, LogiQADataset
+from .sci_datasets import * #SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset, AdvDataset, QADataset, WMDPDataset
+from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
 from openai import OpenAI
@@ -140,6 +140,22 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
         else:
             print("Attack not supported. Supported attacks: textbugger, textfooler, stresstest.")
             exit()
+
+    elif 'safety' in perspective:
+
+        if dataset_name == "WMDP-BIO":
+            dataset = WMDPDataset('bio', split=split, k=k)
+        elif dataset_name == "WMDP-CHEM":
+            dataset = WMDPDataset('chem', split=split, k=k)
+        elif dataset_name == "WMDP-CYBER":
+            dataset = WMDPDataset('cyber', split=split, k=k)
+        elif dataset_name == "HarmBench-CHEM-BIO":
+            dataset = HarmBenchDataset(k=k, subset='chemical_biological', split=split)
+        elif dataset_name == "HarmBench-CYBERCRIME-INTRUSION":
+            dataset = HarmBenchDataset(k=k, subset='cybercrime_intrusion', split=split)
+        else:
+            print("Dataset {} not supported.")
+
 
     elif "scientific_ethics" in perspective:
 
