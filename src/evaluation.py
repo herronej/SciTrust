@@ -22,7 +22,7 @@ import requests
 from huggingface_hub import InferenceClient
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -552,11 +552,11 @@ def main():
         number_of_samples = 4
         df = response_ground_truth_data
         #print("Calculating BERTScore")
-        calc_bertscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
+        '''calc_bertscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
         #print("Calculating ROUGEScore")
-        calc_rougescore(df['y_n'].to_list(), df['x_n'].to_list(), df)
+        calc_rougescore(df['y_n'].to_list(), df['x_n'].to_list(), df)'''
         #print("Calculating BARTScore")
-        calc_bartscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
+        #calc_bartscore(df['y_n'].to_list(), df['x_n'].to_list(), df)
         #print("Calculating ChatGPT-4o as Judge Score")
         df = response_nli_data
         judge_gpt(df, number_of_samples, args.output_file, args.checkpoint_file, args.judge_llm, args.api_key, args.restart)
