@@ -12,6 +12,7 @@ import argparse
 import time
 from openai import OpenAI
 import anthropic
+from google import genai
 
 def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_file=''):
 
@@ -265,7 +266,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     #print(len(gen_text_samples_batch))
     return gen_text_samples_batch
 
-def send_prompt_to_chatgpt(prompt, api_key, max_tokens):
+def send_prompt_to_chatgpt(prompt, model, api_key, max_tokens):
 
     client = OpenAI(
         api_key=api_key,  # This is the default and can be omitted
@@ -278,11 +279,26 @@ def send_prompt_to_chatgpt(prompt, api_key, max_tokens):
                 "content": prompt,
             }
         ],
-        model="o1",
+        model=model,
         #max_completion_tokens=max_tokens,
     )
 
     response = chat_completion.choices[0].message.content #requests.post(url, json=data, headers=headers)
+    #if response.status_code == 200:
+    return response
+
+def send_prompt_to_gemini(prompt, api_key, max_tokens):
+
+    client = genai.Client(api_key=api_key)
+
+    chat_completion = client.models.generate_content(
+        model="gemini-2.0-flash",
+        #max_tokens=max_tokens,
+        contents=prompt,
+    )
+    response = chat_completion.text
+    #print(response)
+    #exit()
     #if response.status_code == 200:
     return response
 
@@ -306,7 +322,6 @@ def send_prompt_to_claude(prompt, api_key, max_tokens):
     #if response.status_code == 200:
     return response
 
-
 def generate_samples_from_api(batch, model_name, api_key, openended, use_cot):
 
     gen_text_samples_batch = []
@@ -325,9 +340,13 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot):
         for n in range(4):
             print('n', n)
             if model_name == 'gpt-o1':
-            	gen_text = send_prompt_to_chatgpt(d[0], api_key, max_new_tokens)
+            	gen_text = send_prompt_to_chatgpt(d[0], 'o1', api_key, max_new_tokens)
+            elif model_name == 'gpt-o3-mini':
+                gen_text = send_prompt_to_chatgpt(d[0], 'o3-mini', api_key, max_new_tokens)
             elif model_name == 'claude-sonnet-3.7':
                 gen_text = send_prompt_to_claude(d[0], api_key, max_new_tokens)
+            elif model_name == 'gemini-2.0-pro': 
+                gen_text = send_prompt_to_gemini(d[0], api_key, max_new_tokens)
             gen_text_samples.append(gen_text)
         sample_data = [d[0], d[1]] + gen_text_samples
         print('sample_data', sample_data)

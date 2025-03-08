@@ -125,8 +125,8 @@ def main():
         from transformers import AutoTokenizer, AutoModelForCausalLM
         tokenizer = AutoTokenizer.from_pretrained("facebook/galactica-120b")
         model = AutoModelForCausalLM.from_pretrained("facebook/galactica-120b", device_map='auto')
-    elif not (model_name != 'gpt-o1' or model_name != 'claude-sonnet-3.7'):
-        print("Model name {} invalid. Supported models: llama3-70b-instruct, forge-l-instruct, sciglm-6b, darwin-7b, galactica-120b".format(model_name))
+    elif not (model_name != 'gpt-o3-mini' or model_name != 'gpt-o1' or model_name != 'claude-sonnet-3.7' or model_name != 'gemini-2.0-pro'):
+        print("Model name {} invalid. Supported models: gpt-o1, claude-sonnet-3.7, gemini-2.0-pro, llama3-70b-instruct, forge-l-instruct, sciglm-6b, darwin-7b, galactica-120b".format(model_name))
         exit()
 
     print(torch.cuda.device_count())
@@ -145,7 +145,7 @@ def main():
 
         if batch_idx < start_idx:
             continue
-        if model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7':
+        if  model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro':
             gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
         else:
             gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
