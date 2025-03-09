@@ -10,9 +10,9 @@ from .sci_datasets import * #SciQDataset, GPQADataset, ARCDataset, HendrycksData
 from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
-from openai import OpenAI
+#from openai import OpenAI
 import anthropic
-from google import genai
+#from google import genai
 
 def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_file=''):
 
@@ -103,7 +103,7 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
 
         elif perspective == 'adv_robustness_textbugger':
             if dataset_name == "SciQ":
-                dataset = AdvDataset("../scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_SciQ_0_0.json", split=split)
+                dataset = AdvDataset("scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_SciQ_0_0.json", split=split)
             elif dataset_name == "ARC-C":
                 dataset = AdvDataset("scitrust_datasets/adv_datasets/multiple_choice/llama2-7b_textbugger_ARC-C_0_0.json", split=split)
             elif dataset_name == "GPQA":
