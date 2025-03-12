@@ -235,7 +235,7 @@ def append_record(record, filename):
         json.dump(record, f)
         f.write('\n')
 
-def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=False):
+def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=False, n_samples=4):
     gen_text_samples_batch = []
     #print('len(batch)', len(batch))
     if openended and use_cot:
@@ -249,7 +249,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
-        for n in range(4):
+        for n in range(n_samples):
             print('n', n)
             input_ids = tokenizer(d[0], return_tensors="pt").input_ids.to(device)
             #print('tokenizer.model_max_length', tokenizer.model_max_length)
@@ -322,7 +322,9 @@ def send_prompt_to_claude(prompt, api_key, max_tokens):
     #if response.status_code == 200:
     return response
 
-def generate_samples_from_api(batch, model_name, api_key, openended, use_cot):
+def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=4):
+
+    print("Num Samples", n_samples)
 
     gen_text_samples_batch = []
     #print('len(batch)', len(batch))
@@ -331,13 +333,15 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot):
     elif openended:
         max_new_tokens=300
     elif not openended and use_cot:
-        max_new_tokens = 303
+        max_new_tokens=303
+    elif model_name == 'claude-sonnet-3.7':
+        max_new_tokens=300
     else:
         max_new_tokens=3
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
-        for n in range(4):
+        for n in range(n_samples):
             print('n', n)
             if model_name == 'gpt-o1':
             	gen_text = send_prompt_to_chatgpt(d[0], 'o1', api_key, max_new_tokens)

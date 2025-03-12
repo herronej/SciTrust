@@ -75,6 +75,11 @@ def main():
 
     dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot, from_file=from_file)
 
+    if (model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro') and (openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination')):
+        dataset = dataset[:100]
+
+    print("Dataset Length:", len(dataset))
+
     if not os.path.exists("outputs"):
         os.makedirs("outputs")
 
@@ -146,8 +151,14 @@ def main():
         if batch_idx < start_idx:
             continue
         if  model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro':
-            gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
+            print("openended", openended, "perspective", perspective)
+            if openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination'):
+                gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
+            else:
+                gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=1)
+            #gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
         else:
+            #print("openended", openended, "perspective", perspective, "")
             gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
         for sample_data in gen_text_samples_batch:
             append_record(dict(zip(features, sample_data)), output_path)
