@@ -20,6 +20,7 @@ from transformers import pipeline
 import ast
 import requests
 from huggingface_hub import InferenceClient
+import re
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
@@ -30,6 +31,10 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
     print("Couldn't find cuda")
+
+def remove_reasoning_section(text: str) -> str:
+    modified_text = re.sub(r'\[Reasoning Steps\].*?\[End\]', '', text, flags=re.DOTALL)
+    return modified_text
 
 def parse_json_garbage(s):
     s = s[next(idx for idx, c in enumerate(s) if c in "{["):]
@@ -162,7 +167,7 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, judge_llm, ap
         answer = df['Sample 1'].iloc[i]
         print("question", question, "answer", answer)
         for sample in samples:
-            prompt = PROMPT.format(question, answer, sample)
+            prompt = PROMPT.format(question, answer, remove_reasoning_section(sample))
 
             if judge_llm == "llama3.3":
                 response_str = generate_response_from_model(prompt, model, tokenizer)
@@ -520,11 +525,11 @@ def main():
     if args.from_file != None:
         path_to_file = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
         output_file = "outputs/eval_{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
-        checkpoint_file = "checkpoints/{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot)
+        checkpoint_file = "checkpoints/{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, args.from_file, k, use_cot, args.split)
     else:
         path_to_file = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
         output_file = "outputs/eval_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
-        checkpoint_file = "checkpoints/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
+        checkpoint_file = "checkpoints/{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot, args.split)
     print(path_to_file)
     try:
         response_nli_data, response_ground_truth_data = convert_data_to_given_format(path_to_file)
@@ -559,6 +564,8 @@ def main():
         calc_bartscore(df['y_n'].to_list(), df['x_n'].to_list(), df)"""
         #print("Calculating ChatGPT-4o as Judge Score")
         df = response_nli_data
+        if args.split != None:
+            df = np.array_split(df, 100)[args.split]
         judge_gpt(df, number_of_samples, output_file, checkpoint_file, args.judge_llm, args.api_key, args.restart)
         
     else:
