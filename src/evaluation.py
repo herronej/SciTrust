@@ -249,7 +249,7 @@ def lynx_hallucination(df, number_of_samples):
         question = df['Question'].iloc[i]
         answer = df['Sample 1'].iloc[i]
         for sample in samples:
-            prompt = PROMPT.format(question, answer, sample)
+            prompt = PROMPT.format(question, answer, (sample))
 
             messages = [{"role": "user", "content": prompt},]
 
@@ -298,7 +298,7 @@ def calc_nli_score(df, number_of_samples):
     for i in range(len(df)):
         samples = []
         for j in range(number_of_samples):
-            samples.append(df[f"Sample {j+2}"].iloc[i])
+            samples.append((df[f"Sample {j+2}"].iloc[i]))
         samplepass.append(samples)
     for i in tqdm(range(len(sentences))):
         #print('sentences[i]', len(sentences[i]), sentences[i])
@@ -461,7 +461,7 @@ def convert_data_to_given_format(path_to_file):
             candidate_ground_truth_response = {}
             candidate_ground_truth_response['queries'] = response['x']
             candidate_ground_truth_response['x_n'] = response['y']
-            candidate_ground_truth_response['y_n'] = response[key]
+            candidate_ground_truth_response['y_n'] = remove_reasoning_section(response[key])
 
             ground_truth_responses.append(candidate_ground_truth_response)
 
@@ -473,7 +473,7 @@ def convert_data_to_given_format(path_to_file):
 
         for i, key in (enumerate(response.keys())):
             new_key = f'Sample {i+2}'
-            candidate_nli_response[new_key] = response[key]
+            candidate_nli_response[new_key] = remove_reasoning_section(response[key])
 
         nli_responses.append(candidate_nli_response)
 

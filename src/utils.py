@@ -122,8 +122,8 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
                 print("Dataset {} not supported. Supported datasets: SciQ, ARC-E, ARC-C, and OBQA.".format(dataset_name))
                 exit()
         elif 'adv_robustness_open_ended' in perspective:
-            attack_num = perspective.split("_")[-1]
-            if int(attack_num) > 11:
+            attack = perspective.split("_")[-1]
+            if attack != 'character-level' and attack != 'word-level' and attack != 'sentence-level':
                 print("Attack not supported.")
                 exit()
             if dataset_name == "ChemistryQA":
