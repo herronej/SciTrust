@@ -11,7 +11,7 @@ from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADatase
 import argparse
 import time
 #from openai import OpenAI
-import anthropic
+#import anthropic
 #from google import genai
 
 def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_file=''):
@@ -127,15 +127,17 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
                 print("Attack not supported.")
                 exit()
             if dataset_name == "ChemistryQA":
-                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/chemistry_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/chemistry_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack), split=split)
             elif dataset_name == "ComputerScienceQA":
-                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/computer_science_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/computer_science_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack), split=split)
             elif dataset_name == "BiologyQA":
-                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/biology_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/biology_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack), split=split)
             elif dataset_name == "PhysicsQA":
-                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/physics_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/physics_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack), split=split)
+            elif dataset_name == "MaterialsScienceQA":
+                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/materials_science_qa_chatgpt-4o_500_adv_{}.jsonl".format(attack), split=split)
             elif dataset_name == "LogicInference":
-                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/logicinference_oa_chatgpt-4o_500_adv_{}.jsonl".format(attack_num), split=split)
+                dataset = QADataset("scitrust_datasets/adv_datasets/open_ended/logicinference_oa_chatgpt-4o_500_adv_{}.jsonl".format(attack), split=split)
             else:
                 print("Dataset {} not supported. Supported datasets: ChemistryQA, ComputerScienceQA, BiologyQA, PhysicsQA, and LogicInference.".format(dataset_name))
                 exit()
@@ -243,7 +245,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     elif openended:
         max_new_tokens=300
     elif not openended and use_cot:
-        max_new_tokens = 303
+        max_new_tokens = 503
     else:
         max_new_tokens=3
 
