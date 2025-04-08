@@ -8,6 +8,7 @@ from datasets import load_dataset
 import pandas as pd
 from .sci_datasets import * #SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset, AdvDataset, QADataset, WMDPDataset
 from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADataset
+from .astro_datasets import *
 import argparse
 import time
 #from openai import OpenAI
@@ -64,6 +65,12 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
 
         elif dataset_name == "MaterialsScienceQA":
             dataset = QADataset("scitrust_datasets/truthfulness_open_ended/Materials Science_qa_rt2.jsonl", split=split, use_cot=use_cot)
+
+        elif dataset_name == "AstroMLMCDataset":
+            dataset = AstroMLMCDataset(k=k, split=split, use_cot=use_cot)
+
+        elif dataset_name == "AstroMLQADataset":
+            dataset = AstroMLQADataset(split=split, use_cot=use_cot)
 
         elif from_file != '':
             dataset = QADataset(from_file, split=split, use_cot=use_cot)
@@ -257,7 +264,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
             #print('tokenizer.model_max_length', tokenizer.model_max_length)
             #print(input_ids.shape)
             gen_start_time = time.time()
-            gen_tokens = model.generate(input_ids, do_sample=True, temperature=0.7, max_new_tokens=max_new_tokens)
+            gen_tokens = model.generate(input_ids, do_sample=True, temperature=0.7, max_new_tokens=600)
             gen_end_time = time.time()
             print("Generation Time", gen_end_time-gen_start_time)
             gen_text = tokenizer.batch_decode(gen_tokens[:, input_ids.shape[1]:])[0]

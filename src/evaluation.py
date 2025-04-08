@@ -23,7 +23,7 @@ from huggingface_hub import InferenceClient
 import re
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -423,16 +423,59 @@ def calc_bartscore(y,x,df):
     print("Standard Deviation:", statistics.stdev(bartres), '\n')
     return df
 
+import re
+
+def parse_mc_response(text: str):
+    """
+    Given a string (LLM response) of the form:
+        Answer: <answer>
+        Explanation: <explanation>
+    this function returns the answer and explanation.
+
+    :param response_text: The raw text output from the LLM
+    :return: A tuple (answer_choice, explanation_text)
+    """
+
+    '''# Regex to capture whatever follows `Answer:` until a newline
+    answer_pattern = r"(?is)Answer:\s*(.*?)\s*(?=Explanation:)" #r"(?i)Answer:\s*([A-Za-z])"
+    # Regex to capture whatever follows `Explanation:` until the end of the text
+    explanation_pattern = r"(?i)Explanation:\s*(.+)"
+
+    # Find the single-letter answer
+    answer_match = re.search(answer_pattern, response_text)
+    # Find the explanation
+    explanation_match = re.search(explanation_pattern, response_text, flags=re.DOTALL)
+
+    # Extract answer if matched, otherwise None
+    answer_choice = answer_match.group(1) if answer_match else '' #None
+
+    # Extract explanation if matched, otherwise None
+    explanation_text = explanation_match.group(1).strip() if explanation_match else '' #None
+
+    print('answer_choice', answer_choice)
+    print('explanation_text', explanation_text)
+    '''
+    #answer_choice, explanation_text = response_text.split("Explanation:")
+    index = text.find("Explanation")
+    if index == -1:
+        # 'Explanation' not found, return text unchanged
+        return text
+    # Return everything from start up to (but not including) 'Explanation'
+    return text[:index]
+    #return answer_choice, explanation_text
+
+
 def calc_accuracy(y,x,df):
 
     accuracies = []
     for i in tqdm(range(len(df))):
-        x[i] = re.sub('[^A-Za-z0-9]+', ' ', x[i]).strip().lower()
-        y[i] = re.sub('[^A-Za-z0-9]+', ' ', y[i]).lower()
-        #print('x', x[i])
-        #print('y', y[i])
+        print('x', x[i], 'y', y[i])
+        x[i] = re.sub('[^A-Za-z0-9]+', ' ', x[i]).strip()#.lower()
+        y[i] = re.sub('[^A-Za-z0-9]+', ' ', parse_mc_response(y[i]))#.lower()
+        print('x', x[i])
+        print('y', y[i])
         correct = int(bool(re.search(rf'\b{str(x[i])}\b', str(y[i]))))
-        #print('correct', correct)
+        print('correct', correct)
         accuracies.append(correct)
     df['Accuracy'] = accuracies
 
@@ -461,7 +504,7 @@ def convert_data_to_given_format(path_to_file):
             candidate_ground_truth_response = {}
             candidate_ground_truth_response['queries'] = response['x']
             candidate_ground_truth_response['x_n'] = response['y']
-            candidate_ground_truth_response['y_n'] = remove_reasoning_section(response[key])
+            candidate_ground_truth_response['y_n'] = response[key]
 
             ground_truth_responses.append(candidate_ground_truth_response)
 
@@ -473,7 +516,7 @@ def convert_data_to_given_format(path_to_file):
 
         for i, key in (enumerate(response.keys())):
             new_key = f'Sample {i+2}'
-            candidate_nli_response[new_key] = remove_reasoning_section(response[key])
+            candidate_nli_response[new_key] = response[key]
 
         nli_responses.append(candidate_nli_response)
 

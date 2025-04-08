@@ -608,7 +608,11 @@ class QADataset(Dataset):
         self.k = 0
         self.use_cot = use_cot
 
-        df_pandas = pd.read_json(path_or_buf=path, lines=True)
+        if 'json' not in path:
+            dataset = load_dataset('AstroMLab/araa-qa-gemini-1.5-generated-v2', split='train')
+            df_pandas = dataset.to_pandas()
+        else:
+            df_pandas = pd.read_json(path_or_buf=path, lines=True)
         if split != None:
             df_pandas = np.array_split(df_pandas, 100)[split]
         self.data, self.labels = self.preprocess(df_pandas)

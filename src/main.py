@@ -56,7 +56,7 @@ def main():
     print('available =', torch.cuda.is_available())
 
 
-    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', "HarmBench-CHEM-BIO", "HarmBench-CYBERCRIME-INTRUSION"]
+    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', "HarmBench-CHEM-BIO", "HarmBench-CYBERCRIME-INTRUSION", "AstroMLab/araa-qa-gemini-1.5-generated-v2"]
 
     dataset_name = args.dataset
     model_name = args.model #'forge'
@@ -130,6 +130,10 @@ def main():
         from transformers import AutoTokenizer, AutoModelForCausalLM
         tokenizer = AutoTokenizer.from_pretrained("facebook/galactica-120b")
         model = AutoModelForCausalLM.from_pretrained("facebook/galactica-120b", device_map='auto')
+    elif "astro" in model_name.lower():
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        model = AutoModelForCausalLM.from_pretrained('AstroMLab/'+model_name, device_map="auto")
+        tokenizer = AutoTokenizer.from_pretrained('AstroMLab/'+model_name)
     elif not (model_name != 'gpt-o3-mini' or model_name != 'gpt-o1' or model_name != 'claude-sonnet-3.7' or model_name != 'gemini-2.0-pro'):
         print("Model name {} invalid. Supported models: gpt-o1, claude-sonnet-3.7, gemini-2.0-pro, llama3-70b-instruct, forge-l-instruct, sciglm-6b, darwin-7b, galactica-120b".format(model_name))
         exit()
@@ -137,7 +141,7 @@ def main():
     print(torch.cuda.device_count())
 
     #load checkpoint
-    data_loader = DataLoader(dataset, batch_size=4, shuffle=False, num_workers=1)
+    data_loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=1)
 
     if restart:
     	start_idx = load_checkpoint(checkpoint_path)[0]
@@ -153,13 +157,13 @@ def main():
         if  model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro':
             print("openended", openended, "perspective", perspective)
             if openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination'):
-                gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
+                gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=4)
             else:
-                gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=1)
+                gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=4)
             #gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
         else:
             #print("openended", openended, "perspective", perspective, "")
-            gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
+            gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot, n_samples=4)
         for sample_data in gen_text_samples_batch:
             append_record(dict(zip(features, sample_data)), output_path)
         save_checkpoint(batch_idx+1, output_path, checkpoint_path)  # Save checkpoint after each batch
