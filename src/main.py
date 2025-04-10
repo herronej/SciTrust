@@ -96,7 +96,12 @@ def main():
 
 
     generation_data = []
-    if model_name == 'llama3.1-405b-instruct':
+    if model_name == "llama4-scout":  
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        model_name ="meta-llama/Llama-4-Scout-17B-16E-Instruct"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
+    elif model_name == 'llama3.1-405b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
         model_name = "meta-llama/Llama-3.1-405B-Instruct"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -137,7 +142,7 @@ def main():
     print(torch.cuda.device_count())
 
     #load checkpoint
-    data_loader = DataLoader(dataset, batch_size=4, shuffle=False, num_workers=1)
+    data_loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=1)
 
     if restart:
     	start_idx = load_checkpoint(checkpoint_path)[0]
