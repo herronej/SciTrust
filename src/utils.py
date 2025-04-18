@@ -10,7 +10,7 @@ from .sci_datasets import * #SciQDataset, GPQADataset, ARCDataset, HendrycksData
 from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADataset
 import argparse
 import time
-#from openai import OpenAI
+from openai import OpenAI
 import anthropic
 #from google import genai
 
@@ -164,31 +164,31 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
     elif "scientific_ethics" in perspective:
 
         if dataset_name == "scientific_ethics_full":
-            dataset = SciEthicsDataset(k=k)
+            dataset = SciEthicsDataset(split=split, k=k)
 
         elif dataset_name == "scientific_ethics_ai":
-            dataset = SciEthicsDataset(subset='AI', k=k)
+            dataset = SciEthicsDataset(subset='AI', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_animal_testing':
-            dataset = SciEthicsDataset(subset='AT', k=k)
+            dataset = SciEthicsDataset(subset='AT', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_bias_objectivity':
-            dataset = SciEthicsDataset(subset='BO', k=k)
+            dataset = SciEthicsDataset(subset='BO', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_data_privacy':
-            dataset = SciEthicsDataset(subset='DP', k=k)
+            dataset = SciEthicsDataset(subset='DP', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_dual_use_research':
-            dataset = SciEthicsDataset(subset='DU', k=k)
+            dataset = SciEthicsDataset(subset='DU', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_environmental_impact':
-            dataset = SciEthicsDataset(subset='EI', k=k)
+            dataset = SciEthicsDataset(subset='EI', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_human_subjects':
-            dataset = SciEthicsDataset(subset='HS', k=k)
+            dataset = SciEthicsDataset(subset='HS', split=split, k=k)
 
         elif dataset_name == 'scientific_ethics_genetic_modification':
-            dataset = SciEthicsDataset(subset='GM', k=k)
+            dataset = SciEthicsDataset(subset='GM', split=split, k=k)
 
         else:
             print("Dataset {} not supported. Supported datasets: scientific_ethics_full, scientific_ethics_ai, scientific_ethics_animal_testing, scientific_ethics_bias_objectivity, scientific_ethics_data_privacy, scientific_ethics_dual_use_research, scientific_ethics_environmental_impact, scientific_ethics_human_subjects".format(dataset_name))
@@ -247,7 +247,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     elif not openended and use_cot:
         max_new_tokens = 503
     else:
-        max_new_tokens=3
+        max_new_tokens=310
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
@@ -326,7 +326,7 @@ def send_prompt_to_claude(prompt, api_key, max_tokens):
 
 def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=4):
 
-    print("Num Samples", n_samples)
+    #print("Num Samples", n_samples)
 
     gen_text_samples_batch = []
     #print('len(batch)', len(batch))
@@ -342,8 +342,6 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
         max_new_tokens=3
 
     for d in zip(batch[0], batch[1]):
-        print('d0', d[0])
-        print('d1', d[1])
         gen_text_samples = []
         for n in range(n_samples):
             print('n', n)

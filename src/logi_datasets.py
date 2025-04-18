@@ -13,7 +13,7 @@ import os
 import numpy as np
 
 class LogicInferenceDataset(Dataset):
-    def __init__(self, k=5, split=0, use_cot=False):
+    def __init__(self, k=0, split=0, use_cot=False):
 
         self.k = k
         self.use_cot = use_cot
@@ -78,7 +78,7 @@ class LogicInferenceDataset(Dataset):
 
 
 class ReClorDataset(Dataset):
-    def __init__(self, k=5, use_cot=False, split=None):
+    def __init__(self, k=0, use_cot=False, split=None):
 
         self.k = k
         self.use_cot = use_cot
@@ -108,11 +108,18 @@ class ReClorDataset(Dataset):
       df_first_k = df.iloc[:self.k]
       df = df.iloc[self.k:]
 
-      prompt = """\nWhat is the correct answer to this question?\n{}\nQuestion: {}Answer: {}"""
-      if self.use_cot:
-          prompt_final = """\nWhat is the correct answer to this question? Include your reasoning steps in the format of [Reasoning Steps] your reasoning steps [End]. Use this exact format. \nQuestion: {}\nAnswer:"""
-      else:
-          prompt_final = """\nWhat is the correct answer to this question:?\n{}\nQuestion: {}Answer:"""
+      prompt_base = """Answer and explain the following multiple-choice question. 
+            Give only one answer, either A, B, C, D, or E, but not more than one, and always give an answer.
+            Provide a detailed explanation for why this answer is correct.
+            Return your answer as a json string in the following format:
+            {}
+            Strictly adhere to this output format.
+            Question: {}"""
+
+      output_format = """{"ANSWER": "[The choice you decide to choose]", "EXPLANATION": "[Provide a valid explanation for the answer mentioned in ANSWER]"}"""
+
+      prompt = prompt_base + """Answer: {}"""
+      prompt_final = prompt_base
 
       output_data = []
       labels = []
@@ -138,9 +145,9 @@ class ReClorDataset(Dataset):
 
               if k_i == self.k:
                   #labels.append(item['correct_answer'])
-                  all_shots_str += prompt_final.format(curr_item['context'], completion_str)
+                  all_shots_str += prompt_final.format(output_format, curr_item['context'], completion_str)
               else:
-                  all_shots_str += prompt.format(curr_item['context'], completion_str, choices[curr_item['label']]) #correct_answer_letter)
+                  all_shots_str += prompt.format(output_format, curr_item['context'], completion_str, choices[curr_item['label']]) #correct_answer_letter)
 
           output_data.append(all_shots_str)
           labels.append(choices[curr_item['label']])
@@ -186,11 +193,21 @@ class LogiQADataset(Dataset):
       df = df.iloc[self.k:]
 
 
-      prompt = """\nWhat is the correct answer to this question?\n{}\nQuestion: {}Answer: {}"""
-      if self.use_cot:
-          prompt_final = """\nWhat is the correct answer to this question? Include your reasoning steps in the format of [Reasoning Steps] your reasoning steps [End]. Use this exact format. \nQuestion: {}\nAnswer:"""
-      else:
-          prompt_final = """\nWhat is the correct answer to this question:?\n{}\nQuestion: {}Answer:"""
+      prompt_base = """Answer and explain the following multiple-choice question. 
+            Give only one answer, either A, B, C, D, or E, but not more than one, and always give an answer.
+            Provide a detailed explanation for why this answer is correct.
+            Return your answer as a json string in the following format:
+            {}
+            Strictly adhere to this output format.
+            Question: {}"""
+
+      output_format = """{"ANSWER": "[The choice you decide to choose]", "EXPLANATION": "[Provide a valid explanation for the answer mentioned in ANSWER]"}"""
+
+      prompt = prompt_base + """Answer: {}"""
+      prompt_final = prompt_base
+
+
+
       choices = ['(A)', '(B)', '(C)', '(D)', '(E)']
       output_data = []
       labels = []
@@ -216,9 +233,9 @@ class LogiQADataset(Dataset):
 
               if k_i == self.k:
                   #labels.append(item['correct_answer'])
-                  all_shots_str += prompt_final.format(curr_item['context'], completion_str)
+                  all_shots_str += prompt_final.format(output_format, curr_item['context'], completion_str)
               else:
-                  all_shots_str += prompt.format(curr_item['context'], completion_str, choices[curr_item['correct_option']]) #correct_answer_letter)
+                  all_shots_str += prompt.format(output_format, curr_item['context'], completion_str, choices[curr_item['correct_option']]) #correct_answer_letter)
 
           output_data.append(all_shots_str)
           labels.append(choices[curr_item['correct_option']])

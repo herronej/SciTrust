@@ -75,8 +75,10 @@ def main():
 
     dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot, from_file=from_file)
 
+    '''
     if (model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro') and (openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination')):
-        dataset = dataset[:100]
+        dataset = dataset.select(range(100))
+    '''
 
     print("Dataset Length:", len(dataset))
 
@@ -157,7 +159,7 @@ def main():
             continue
         if  model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro':
             print("openended", openended, "perspective", perspective)
-            if openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination'):
+            if openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination' or perspective == "truthfulness_logical_reasoning"):
                 gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
             else:
                 gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=1)
