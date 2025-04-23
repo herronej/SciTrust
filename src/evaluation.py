@@ -21,6 +21,7 @@ import ast
 import requests
 from huggingface_hub import InferenceClient
 import re
+import replicate
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5,6,7"
@@ -172,6 +173,16 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, judge_llm, ap
             if judge_llm == "llama3.3":
                 response_str = generate_response_from_model(prompt, model, tokenizer)
                 #print(response_str)
+            elif judge_llm == "llama3-405b":
+                input = {"prompt": prompt, "max_tokens": 256}
+                '''for event in replicate.stream(
+                    "meta/meta-llama-3.1-405b-instruct",
+                    input=input
+                ):
+                    print(event, end="")
+                exit()'''
+                response_str = "".join(replicate.run("meta/meta-llama-3.1-405b-instruct", input=input))
+                print("response_str", response_str)
             else:
                 response = send_prompt_to_chatgpt(prompt, api_key)
                 print(response['choices'][0]['message']['content'])
@@ -495,20 +506,25 @@ def calc_accuracy(df, number_of_samples, output_file, checkpoint_file, judge_llm
 
         #print(df.keys())
         question = df['Question'].iloc[i]
-        answer = df['Sample 1'].iloc[i].strip()
+        answer = df['Sample 1'].iloc[i].strip().lower()
         print("question", question)
         for sample in samples:
 
-            try:
-                result = parse_json_garbage(sample)
-                print('parsed_str', result)
-                #result = json.loads(result)
-                letter_answer = re.sub('[^A-Za-z0-9]+', ' ', result["ANSWER"])
-                correct = int(bool(re.search(rf'\b{str(letter_answer)}\b', str(answer))))
+            if True: #"claude-sonnet-3.7" not in output_file or "gpt-o1" not in output_file:
+                #result = parse_json_garbage(sample)
+                #print('parsed_str', result)
+                #result = json.loads(result) 
+                answer = re.sub('[^A-Za-z0-9]+', ' ', answer).strip().lower()
+                sample = re.sub('[^A-Za-z0-9]+', ' ', sample).lower()
+                #print('x', x[i])
+                #print('y', y[i])
+                correct = int(bool(re.search(rf'\b{str(answer)}\b', str(sample))))
+                #letter_answer = re.sub('[^A-Za-z0-9]+', ' ', sample) #result["ANSWER"])
+                #correct = int(answer in sample) #int(bool(re.search(rf'\b{str(letter_answer)}\b', str(answer))))
                 #all_scores.append(float(result["ANSWER"]))
                 accuracies.append(correct)
 
-            except:
+            else:
                 prompt = PROMPT.format(question, answer, sample)
 
                 if judge_llm == "llama3.3":
@@ -728,7 +744,7 @@ def main():
     parser.add_argument('--selfcheck_nli_scores_file', type=str, default='selfcheck-nli-score.csv')
     parser.add_argument('--api_key', type=str, default='your-openai-key-here')
     parser.add_argument('--from_file', type=str, default=None)
-    parser.add_argument('--judge_llm', type=str, default='llama3.3')
+    parser.add_argument('--judge_llm', type=str, default='gpt-4o')
     parser.add_argument('--use_cot', action='store_true')
 
     args = parser.parse_args()
