@@ -250,11 +250,11 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     if openended and use_cot:
         max_new_tokens=600
     elif openended:
-        max_new_tokens=300
+        max_new_tokens=600
     elif not openended and use_cot:
         max_new_tokens = 503
     else:
-        max_new_tokens=3
+        max_new_tokens=100
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
@@ -264,7 +264,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
             #print('tokenizer.model_max_length', tokenizer.model_max_length)
             #print(input_ids.shape)
             gen_start_time = time.time()
-            gen_tokens = model.generate(input_ids, do_sample=True, temperature=0.7, max_new_tokens=600)
+            gen_tokens = model.generate(input_ids, do_sample=True, max_new_tokens=max_new_tokens, pad_token_id=tokenizer.eos_token_id)
             gen_end_time = time.time()
             print("Generation Time", gen_end_time-gen_start_time)
             gen_text = tokenizer.batch_decode(gen_tokens[:, input_ids.shape[1]:])[0]
@@ -340,13 +340,13 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
     if openended and use_cot:
         max_new_tokens=600
     elif openended:
-        max_new_tokens=300
+        max_new_tokens=256
     elif not openended and use_cot:
         max_new_tokens=303
     elif model_name == 'claude-sonnet-3.7':
         max_new_tokens=300
     else:
-        max_new_tokens=3
+        max_new_tokens=100
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []

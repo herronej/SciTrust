@@ -21,6 +21,7 @@ import ast
 import requests
 from huggingface_hub import InferenceClient
 import re
+from langchain_community.llms.sambanova import SambaStudio
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
@@ -60,7 +61,7 @@ def load_checkpoint(checkpoint_path):
         return 0, None
 
 def send_prompt_to_chatgpt(prompt, api_key):
-    url = 'https://api.openai.com/v1/chat/completions'
+    '''url = 'https://api.openai.com/v1/chat/completions'
     headers = {
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
@@ -77,6 +78,29 @@ def send_prompt_to_chatgpt(prompt, api_key):
         return response.json()
     else:
         raise Exception(f"Failed to fetch response: {response.text}")
+    '''
+    os.environ["SAMBASTUDIO_URL"] = "https://sambanova.cades.ornl.gov/api/v2/predict/generic/aeda7545-7039-4f93-8822-53f8baad71c1/651dfc9b-a20f-4e35-af1e-9dafbbb7135f"
+    os.environ["SAMBASTUDIO_API_KEY"] = "3e9e019a-5c23-40c5-abb4-83f2e125bb0f"
+
+    llama31405b = SambaStudio(
+        model_kwargs={
+            "do_sample": True,
+            "max_tokens": 1024,
+            "temperature": 0.01,
+            "process_prompt": False,  # set if using CoE endpoints
+            "model": "Meta-Llama-3.1-405B-Instruct-FP8",  # set if using CoE endpoints
+            # "repetition_penalty":  1.0,
+            # "top_k": 50,
+            # "top_logprobs": 0,
+            # "top_p": 1.0
+        },
+    )
+
+    input_text = "Why should I use open source models?"
+    #query model
+    completion =llama31405b.invoke(input_text)
+    return completion
+
 
 def send_prompt_to_huggingface(prompt, api_key):
     messages = [
@@ -150,7 +174,7 @@ def judge_gpt(df, number_of_samples, output_file, checkpoint_file, judge_llm, ap
     print(df.head())
 
     if judge_llm == 'llama3.3':
-        model_path = '../abstract_classification/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/snapshots/5825c9120fc701a0b7d9a30d61005f2a09466b74/'
+        model_path = 'meta-llama/Meta-Llama-3-8B-Instruct' #'../abstract_classification/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/snapshots/5825c9120fc701a0b7d9a30d61005f2a09466b74/'
         from transformers import AutoTokenizer, AutoModelForCausalLM
         tokenizer = AutoTokenizer.from_pretrained(model_path)
         model = AutoModelForCausalLM.from_pretrained(model_path, device_map='auto')
@@ -427,33 +451,9 @@ import re
 
 def parse_mc_response(text: str):
     """
-    Given a string (LLM response) of the form:
-        Answer: <answer>
-        Explanation: <explanation>
-    this function returns the answer and explanation.
-
-    :param response_text: The raw text output from the LLM
-    :return: A tuple (answer_choice, explanation_text)
     """
 
     '''# Regex to capture whatever follows `Answer:` until a newline
-    answer_pattern = r"(?is)Answer:\s*(.*?)\s*(?=Explanation:)" #r"(?i)Answer:\s*([A-Za-z])"
-    # Regex to capture whatever follows `Explanation:` until the end of the text
-    explanation_pattern = r"(?i)Explanation:\s*(.+)"
-
-    # Find the single-letter answer
-    answer_match = re.search(answer_pattern, response_text)
-    # Find the explanation
-    explanation_match = re.search(explanation_pattern, response_text, flags=re.DOTALL)
-
-    # Extract answer if matched, otherwise None
-    answer_choice = answer_match.group(1) if answer_match else '' #None
-
-    # Extract explanation if matched, otherwise None
-    explanation_text = explanation_match.group(1).strip() if explanation_match else '' #None
-
-    print('answer_choice', answer_choice)
-    print('explanation_text', explanation_text)
     '''
     #answer_choice, explanation_text = response_text.split("Explanation:")
     index = text.find("Explanation")
@@ -552,7 +552,7 @@ def main():
 
     args = parser.parse_args()
 
-    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference']
+    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', 'AstroMLQADataset']
 
     if args.dataset in openended_datasets or args.from_file:
         open_ended = True
