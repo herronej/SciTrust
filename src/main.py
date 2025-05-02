@@ -56,7 +56,7 @@ def main():
     print('available =', torch.cuda.is_available())
 
 
-    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', "HarmBench-CHEM-BIO", "HarmBench-CYBERCRIME-INTRUSION", "AstroMLab/araa-qa-gemini-1.5-generated-v2"]
+    openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', "HarmBench-CHEM-BIO", "HarmBench-CYBERCRIME-INTRUSION", "AstroMLQADataset"]
 
     dataset_name = args.dataset
     model_name = args.model #'forge'
@@ -104,6 +104,11 @@ def main():
     elif model_name == 'llama3.3-70b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
         model_name = "meta-llama/Meta-Llama-3.3-70B-Instruct"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
+    elif model_name == 'llama3-8b':
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        model_name = "meta-llama/Meta-Llama-3-8B"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'forge-l-instruct':

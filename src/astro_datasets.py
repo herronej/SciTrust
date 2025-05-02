@@ -43,14 +43,14 @@ class AstroMLMCDataset(Dataset):
       df_first_k = df.iloc[:self.k]
       df = df.iloc[self.k:]
 
-      prompt = """What is the correct answer to this question? Answer A, B, C, or D.
+      prompt = """What is the correct answer to this question? Answer only A, B, C, or D.
 			Question: {question}
 			Options:
 			A: {a}
 			B: {b}
 			C: {c}
 			D: {d}
-            Answer:
+            The correct answer is:
 			"""
 
       #output_format = """{"ANSWER": "[The choice you decide to choose]", "EXPLANATION": "[Provide a valid explanation for the answer mentioned in ANSWER]"}"""

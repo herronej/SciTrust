@@ -250,11 +250,11 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     if openended and use_cot:
         max_new_tokens=600
     elif openended:
-        max_new_tokens=600
+        max_new_tokens=256
     elif not openended and use_cot:
         max_new_tokens = 503
     else:
-        max_new_tokens=100
+        max_new_tokens=3
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
