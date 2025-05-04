@@ -111,6 +111,11 @@ def main():
         model_name = "meta-llama/Meta-Llama-3-8B"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
+    elif model_name == 'llama3.1-8b':
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        model_name = "meta-llama/Meta-Llama-3.1-8B"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'forge-l-instruct':
         model_path = '/lustre/orion/proj-shared/stf218/junqi/chathpc/forge-l-instruct-base1' #'models/forge-l-instruct-base1'
         from transformers import GPTNeoXForCausalLM, GPTNeoXTokenizerFast
