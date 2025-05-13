@@ -11,6 +11,7 @@ from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADatase
 from .astro_datasets import *
 import argparse
 import time
+import replicate
 #from openai import OpenAI
 #import anthropic
 #from google import genai
@@ -275,6 +276,12 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     #print(len(gen_text_samples_batch))
     return gen_text_samples_batch
 
+def send_prompt_to_replicate(prompt, api_key, max_tokens):
+
+    input = {"prompt": prompt, "max_tokens": max_tokens}
+    response_str = "".join(replicate.run("meta/meta-llama-3.1-405b-instruct", input=input))
+    return response_str
+
 def send_prompt_to_chatgpt(prompt, model, api_key, max_tokens):
 
     client = OpenAI(
@@ -346,13 +353,15 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
     elif model_name == 'claude-sonnet-3.7':
         max_new_tokens=300
     else:
-        max_new_tokens=100
+        max_new_tokens=3
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
         for n in range(n_samples):
             print('n', n)
-            if model_name == 'gpt-o1':
+            if model_name == 'llama3-405b':
+                gen_text = send_prompt_to_replicate(d[0], api_key, max_new_tokens)
+            elif model_name == 'gpt-o1':
             	gen_text = send_prompt_to_chatgpt(d[0], 'o1', api_key, max_new_tokens)
             elif model_name == 'gpt-o3-mini':
                 gen_text = send_prompt_to_chatgpt(d[0], 'o3-mini', api_key, max_new_tokens)
