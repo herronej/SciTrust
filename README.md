@@ -209,4 +209,12 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 - Genetic Modification: ```scientific_ethics_genetic_modification```
 
 # Citations
+## SciTrust 1.0 
+Emily Herron, Junqi Yin, and Feiyi Wang. “SciTrust: Evaluating the Trustworthiness of Large
+372 Language Models for Science”. In: Proceedings of the SC ’24 Workshops of the International
+373 Conference on High Performance Computing, Network, Storage, and Analysis. SC-W ’24.
+374 Atlanta, GA, USA: IEEE Press, 2025, pp. 72–78. ISBN: 9798350355543. DOI: 10.1109/
+375 SCW63240.2024.00017. URL: https://doi.org/10.1109/SCW63240.2024.00017.
+
+## SciTrust 2.0
 Coming soon
