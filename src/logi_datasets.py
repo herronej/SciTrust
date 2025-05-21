@@ -17,8 +17,7 @@ class LogicInferenceDataset(Dataset):
 
         self.k = k
         self.use_cot = use_cot
-        #dataset = load_dataset('KK04/LogicInference_OA')
-        dataset = load_from_disk("/lustre/orion/stf218/scratch/1eh/Trustworthiness-Scientific-LLMs/data/LI")
+        dataset = load_dataset('KK04/LogicInference_OA')
         df_pandas = dataset['train'].to_pandas().sample(n=500, random_state=0)
         if split != None:
             df_pandas = np.array_split(df_pandas, 100)[split]
@@ -83,7 +82,7 @@ class ReClorDataset(Dataset):
         self.k = k
         self.use_cot = use_cot
 
-        df_pandas = pd.read_json('reclor_data/train.json') #dataset['train'].to_pandas()
+        df_pandas = pd.read_json('reclor_data/train.json') 
 
         if split != None:
             df_pandas = np.array_split(df_pandas, 100)[split]
@@ -116,8 +115,8 @@ class ReClorDataset(Dataset):
 
       output_data = []
       labels = []
-      for idx, item in df.iterrows(): #item in input_data[self.k:]:
-          all_shots_str = '' #'The following are multiple choice questions (with answers).'
+      for idx, item in df.iterrows(): 
+          all_shots_str = '' 
           correct_answer_letter = ''
           for k_i in range(self.k+1):
 
@@ -223,7 +222,4 @@ class LogiQADataset(Dataset):
           output_data.append(all_shots_str)
           labels.append(choices[curr_item['correct_option']])
 
-      '''print(output_data[0])
-      print(labels[0])
-      exit()'''
       return output_data, labels
