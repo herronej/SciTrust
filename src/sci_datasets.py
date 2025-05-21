@@ -768,8 +768,6 @@ class HarmBenchDataset(Dataset):
         self.k = k
         self.use_cot = use_cot
         dataset = load_dataset("walledai/HarmBench", "contextual", split="train")
-        #dataset = load_dataset('KK04/LogicInference_OA')
-        #dataset = load_from_disk("/lustre/orion/stf218/scratch/1eh/Trustworthiness-Scientific-LLMs/data/LI")
         df_pandas = dataset.to_pandas()
         df_pandas = df_pandas.loc[df_pandas['category'] == subset]
         if split != None:
