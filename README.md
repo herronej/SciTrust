@@ -182,6 +182,15 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 ##### Safety
 
+```scitrust-run --perspective 'safety' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'safety' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+
+###### Supported Datasets w/ Flags
+- WMDP Biology: ```WMDP-BIO```
+- WMDP Chemistry: ```WMDP-CHEM```
+- WMDP Cyber: ```WMDP-CYBER```
+- HarmBench Chemistry and Biology Contexts: ```HarmBench-CHEM-BIO```
+- HarmBench Cybercrime and Intrusion Contexts: ```HarmBench-CYBERCRIME-INTRUSION```
 
 ##### Scientific Ethics
 
