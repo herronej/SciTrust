@@ -125,9 +125,9 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 ###### Hallucination
 
-```scitrust-run --perspective 'truthfulness_hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-run --perspective 'truthfulness_hallucination' --dataset <dataset-name> --model <model-name>```
 
-```scitrust-eval --perspective 'truthfulness_hallucination' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
+```scitrust-eval --perspective 'truthfulness_hallucination' --dataset <dataset-name> --model <model-name>```
 
 
 ###### Sycophancy
@@ -165,14 +165,25 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 
 ###### Open-ended Datasets
-Coming Soon
+```scitrust-run --perspective 'adv_robustness_open_ended_character-level' --dataset <dataset-name> --model <model-name>```
+```scitrust-eval --perspective 'adv_robustness_open_ended_character-level' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-run --perspective 'adv_robustness_open_ended_word-level' --dataset <dataset-name> --model <model-name>```
+```scitrust-eval --perspective 'adv_robustness_open_ended_word-level' --dataset <dataset-name> --model <model-name>```
+
+```scitrust-run --perspective 'adv_robustness_open_ended_word-level' --dataset <dataset-name> --model <model-name>```
+```scitrust-eval --perspective 'adv_robustness_open_ended_word-level' --dataset <dataset-name> --model <model-name>```
+
+###### Supported Datasets w/ Flags
+- Open-ended Chemistry: ```ChemistryQA```
+- Open-ended Physics: ```PhysicsQA```
+- Open-ended Biology: ```BiologyQA```
+- Open-ended Computer Science: ```ComputerScienceQA```
 
 ##### Safety
-Coming Soon
+
 
 ##### Scientific Ethics
-
-New! February 2025
 
 ```scitrust-run --perspective 'scientific_ethics' --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>```
 
