@@ -1,4 +1,4 @@
-import json
+Fimport json
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -6,13 +6,12 @@ import random
 from tqdm.auto import tqdm
 from datasets import load_dataset
 import pandas as pd
-from .sci_datasets import * #SciQDataset, GPQADataset, ARCDataset, HendrycksDataset, OpenBookQADataset, SciEthicsDataset, AdvDataset, QADataset, WMDPDataset
-from .logi_datasets import * #LogicInferenceDataset, ReClorDataset, LogiQADataset
+from .sci_datasets import * 
+from .logi_datasets import * 
 import argparse
 import time
 from openai import OpenAI
 import anthropic
-#from google import genai
 
 def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_file=''):
 
@@ -265,7 +264,6 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
         sample_data = [d[0], d[1]] + gen_text_samples
         print('sample_data', sample_data)
         gen_text_samples_batch.append(sample_data)
-    #print(len(gen_text_samples_batch))
     return gen_text_samples_batch
 
 def send_prompt_to_chatgpt(prompt, model, api_key, max_tokens):
@@ -335,7 +333,7 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
     elif openended:
         max_new_tokens=300
     elif not openended and use_cot:
-        max_new_tokens=303
+        max_new_tokens=503
     elif model_name == 'claude-sonnet-3.7':
         max_new_tokens=300
     else:
@@ -345,8 +343,8 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
         gen_text_samples = []
         for n in range(n_samples):
             print('n', n)
-            if model_name == 'gpt-o1':
-            	gen_text = send_prompt_to_chatgpt(d[0], 'o1', api_key, max_new_tokens)
+            if model_name == 'gpt-o4-mini':
+            	gen_text = send_prompt_to_chatgpt(d[0], 'o4-mini', api_key, max_new_tokens)
             elif model_name == 'gpt-o3-mini':
                 gen_text = send_prompt_to_chatgpt(d[0], 'o3-mini', api_key, max_new_tokens)
             elif model_name == 'claude-sonnet-3.7':
