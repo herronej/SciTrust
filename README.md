@@ -75,7 +75,9 @@ scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-nam
 
 #### Supported Models w/ Flags
 
-- OpenAIs o1: ```gpt-o1```
+- GPT-o4-Mini: ```gpt-o4-mini```
+- Claude Sonnet 3.7: ```claude-sonnet-3.7```
+- Llama4-Scout: ```llama4-scout```
 - Llama3.3-70B-Instruct: ```llama3.3-70b-instruct```
 - FORGE-L: ```forge-l-instruct```
 - SciGLM-6B: ```sciglm-6b```
