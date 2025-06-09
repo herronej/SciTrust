@@ -43,7 +43,7 @@ pip install -e .
 ### Data & Models Setup
 
 1. Create ```model``` folder in base directory
-2. Download FORGE-L and Darwin-7b
+2. Download FORGE-L and Darwin1.5-7b
 3. Extract both models in ```model``` 
 
 ### Data and Code Description
