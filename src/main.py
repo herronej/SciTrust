@@ -14,7 +14,7 @@ from .utils import get_dataset, append_record, generate_samples, generate_sample
 import numpy as np
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
 
 
 if torch.cuda.is_available():
@@ -72,11 +72,12 @@ def main():
 
     print("openended", openended)
     print("use_cot", use_cot)
+    print("dataset_name", dataset_name)
 
     dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot, from_file=from_file)
 
-    if (model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro') and (openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination')):
-        dataset = dataset[:100]
+    #if (model_name == 'gpt-o3-mini' or model_name == "gpt-o1" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro') and (openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination')):
+    #    dataset = dataset[:100]
 
     print("Dataset Length:", len(dataset))
 
@@ -87,11 +88,11 @@ def main():
         os.makedirs("checkpoints")
 
     if from_file != None:
-        output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, from_file, k, use_cot)
-        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, from_file, k, split, use_cot)
+        output_path = "outputs/{}_{}_{}_{}_{}_prompt5.json".format(perspective, model_name, from_file, k, use_cot)
+        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}_prompt5.json".format(perspective, model_name, from_file, k, split, use_cot)
     else:
-        output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
-        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, split, use_cot)
+        output_path = "outputs/{}_{}_{}_{}_{}_prompt5.json".format(perspective, model_name, dataset_name, k, use_cot)
+        checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}_prompt5.json".format(perspective, model_name, dataset_name, k, split, use_cot)
     features = ['x', 'y', 'gen1', 'gen2', 'gen3', 'gen4']#, 'gen5']
 
 
@@ -101,6 +102,11 @@ def main():
         model_name = "meta-llama/Llama-3.1-405B-Instruct"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name, tp_plan="auto") #device_map='auto')
+    elif model_name == 'llama3.1-70b-instruct':
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        model_name = "meta-llama/Meta-Llama-3.1-70B-Instruct"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'llama3.3-70b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
         model_name = "meta-llama/Meta-Llama-3.3-70B-Instruct"
@@ -171,16 +177,19 @@ def main():
     print(torch.cuda.device_count())
 
     #load checkpoint
-    data_loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=1)
+    data_loader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=1)
 
     if restart:
-    	start_idx = load_checkpoint(checkpoint_path)[0]
+        start_idx = load_checkpoint(checkpoint_path)[0]
     else:
         start_idx = 0
 
     start = time.time()
     #for batch_idx, batch in enumerate(tqdm(data_loader), start=start_idx):
     for batch_idx, batch in enumerate(tqdm(data_loader)):
+
+        print(batch)
+        #exit()
 
         if batch_idx < start_idx:
             continue

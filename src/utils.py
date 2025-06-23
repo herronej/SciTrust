@@ -13,17 +13,17 @@ import argparse
 import time
 import replicate
 #from openai import OpenAI
-#import anthropic
+import anthropic
 #from google import genai
 
 def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_file=''):
 
     if perspective == 'truthfulness_misinformation':
         if dataset_name == 'SciQ':
-	        dataset = SciQDataset(k=k, split=split, use_cot=use_cot)
+            dataset = SciQDataset(k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'GPQA':
-    	    dataset = GPQADataset(k=k,  split=split, use_cot=use_cot)
+            dataset = GPQADataset(k=k,  split=split, use_cot=use_cot)
 
         elif dataset_name == 'ARC-E':
             dataset = ARCDataset("Easy", k=k, split=split, use_cot=use_cot)
@@ -32,22 +32,22 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
             dataset = ARCDataset("Challenge", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CC':
-        	dataset = HendrycksDataset("CC", k=k, split=split, use_cot=use_cot)
+            dataset = HendrycksDataset("CC", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CCS':
-        	dataset = HendrycksDataset("CCS", k=k, split=split, use_cot=use_cot)
+            dataset = HendrycksDataset("CCS", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CM':
-        	dataset = HendrycksDataset("CM", k=k, split=split, use_cot=use_cot)
+            dataset = HendrycksDataset("CM", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CB':
-        	dataset = HendrycksDataset("CB", k=k, split=split, use_cot=use_cot)
+            dataset = HendrycksDataset("CB", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-CP':
-        	dataset = HendrycksDataset("CP", k=k, split=split, use_cot=use_cot)
+            dataset = HendrycksDataset("CP", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'HT-S':
-        	dataset = HendrycksDataset("S", k=k, split=split, use_cot=use_cot)
+            dataset = HendrycksDataset("S", k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == 'OBQA':
             dataset = OpenBookQADataset(k=k, split=split)
@@ -69,6 +69,11 @@ def get_dataset(perspective, dataset_name, k=0, split=None, use_cot=False, from_
 
         elif dataset_name == "AstroMLMCDataset":
             dataset = AstroMLMCDataset(k=k, split=split, use_cot=use_cot)
+
+        elif dataset_name == "AstroOlympiadMCDataset":
+            print("Using AstroOlympiadMCDataset with k=", k, "and split=", split, flush=True)
+            exit()
+            dataset = AstroOlympiadMCDataset(k=k, split=split, use_cot=use_cot)
 
         elif dataset_name == "AstroMLQADataset":
             dataset = AstroMLQADataset(split=split, use_cot=use_cot)
@@ -255,7 +260,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     elif not openended and use_cot:
         max_new_tokens = 503
     else:
-        max_new_tokens=3
+        max_new_tokens=300
 
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
@@ -353,16 +358,19 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
     elif model_name == 'claude-sonnet-3.7':
         max_new_tokens=300
     else:
-        max_new_tokens=3
+        max_new_tokens=300
 
     for d in zip(batch[0], batch[1]):
+        print("batch[0]", batch[0])
+        print("batch[1]", batch[1])
+
         gen_text_samples = []
         for n in range(n_samples):
             print('n', n)
             if model_name == 'llama3-405b':
                 gen_text = send_prompt_to_replicate(d[0], api_key, max_new_tokens)
             elif model_name == 'gpt-o1':
-            	gen_text = send_prompt_to_chatgpt(d[0], 'o1', api_key, max_new_tokens)
+                gen_text = send_prompt_to_chatgpt(d[0], 'o1', api_key, max_new_tokens)
             elif model_name == 'gpt-o3-mini':
                 gen_text = send_prompt_to_chatgpt(d[0], 'o3-mini', api_key, max_new_tokens)
             elif model_name == 'claude-sonnet-3.7':
