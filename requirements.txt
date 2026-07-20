@@ -1,0 +1,33 @@
+# SciTrust — Python dependencies (Python 3.12)
+#
+# IMPORTANT — PyTorch on Frontier (AMD ROCm):
+#   Install PyTorch FIRST with the ROCm build for your system (see README / OLCF
+#   guidance), THEN run:  pip install -r requirements.txt
+#   Doing torch first makes pip treat it as already-satisfied, so it will NOT pull
+#   the default NVIDIA-CUDA torch wheel from PyPI as a transitive dependency.
+#
+#   torch      # do NOT `pip install` the default wheel on Frontier
+
+# --- Core inference (scitrust-run) ---
+transformers
+accelerate              # required for device_map='auto' in from_pretrained(...)
+datasets
+huggingface_hub
+sentencepiece           # required by the Llama (Darwin) and SciGLM tokenizers
+protobuf                # required by some sentencepiece-based tokenizers/models
+numpy
+pandas
+tqdm
+
+# --- Hosted / API model backends ---
+openai                  # gpt-o4-mini, gpt-o3-mini
+anthropic               # claude-sonnet-3.7
+replicate               # hosted-model inference (evaluation.py)
+requests                # dataset downloads + API calls
+
+# --- Evaluation metrics (scitrust-eval: open-ended & hallucination) ---
+nltk                    # sentence tokenization
+rouge-score             # ROUGE
+bert-score              # BERTScore
+sentence-transformers   # embedding similarity
+selfcheckgpt            # SelfCheckNLI hallucination scoring
