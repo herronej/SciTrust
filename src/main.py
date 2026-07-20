@@ -109,7 +109,7 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto')
     elif model_name == 'forge-l-instruct':
-        model_path = 'models/forge-l-instruct-base1'
+        model_path = 'models/forge-l'
         from transformers import GPTNeoXForCausalLM, GPTNeoXTokenizerFast
         model = GPTNeoXForCausalLM.from_pretrained(model_path, device_map='auto')
         tokenizer = GPTNeoXTokenizerFast.from_pretrained(model_path)
