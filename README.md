@@ -13,36 +13,58 @@ Table of Contents
 
 ### Environment 
 
-* Python 3.12
+* Python 3.12 (on Frontier, provided by the `cray-python` module)
+* GPU runtime: AMD ROCm (Frontier: `rocm/7.2.0`) — or CUDA on NVIDIA systems
 
 ### Environment Setup Instructions 
 
-To set up the environment for this repository, please follow the steps below:
+To set up the environment on **OLCF Frontier** (AMD MI250X / ROCm) with a Python virtual environment, run every step from the repository root.
 
-Step 1: Create and activate a Conda environment 
-
-```
-conda create -n scitrust python
-
-conda activate scitrust
-```
-
-Step 2: Install PyTorch with CUDA
+**Step 1 — Load the required modules**
 
 ```bash
-conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+module load cray-python      # provides python + venv
+module load git-lfs          # for model/dataset files tracked with Git LFS
+module load rocm/7.2.0       # AMD GPU runtime for PyTorch
 ```
 
-Step 3: Install SciTrust and Python dependencies
+**Step 2 — Create and activate a virtual environment**
 
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
 ```
+
+**Step 3 — Configure the OLCF proxy**
+
+Frontier nodes have no direct outbound internet; the proxy is required for `pip` and for downloading models/datasets from the Hugging Face Hub.
+
+```bash
+export https_proxy='http://proxy.ccs.ornl.gov:3128'
+export http_proxy='http://proxy.ccs.ornl.gov:3128'
+export no_proxy='localhost,127.0.0.1,0.0.0.0'
+```
+
+**Step 4 — Install PyTorch (ROCm build)**
+
+Install the PyTorch wheel matching the loaded `rocm` module *before* the other requirements, so pip does not pull the default CUDA wheel. Browse the available builds at https://download.pytorch.org/whl/ and choose the `rocmX.Y` closest to your module.
+
+```bash
+pip3 install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/rocm7.2
+```
+
+**Step 5 — Install SciTrust and its Python dependencies**
+
+```bash
+pip install -r requirements.txt
 pip install -e .
 ```
 
 ### Data & Models Setup
 
 1. Create ```models``` folder in base directory
-2. Download FORGE-L and Darwin1.5-7b
+2. Download [FORGE-L](https://github.com/at-aaims/forge) and [Darwin1.5-7b](https://github.com/MasterAI-EAM/Darwin)
 3. Extract both models in ```models``` (FORGE-L under ```models/forge-l/```)
 
 ### Data and Code Description
@@ -52,9 +74,16 @@ The project data includes the following components:
 
 ## Quickstart 
 
-Activate environment
-```
-conda activate scitrust
+### Before each session
+
+In a fresh shell, re-load the modules, activate the environment, and set the proxy (from the repository root):
+
+```bash
+module load cray-python git-lfs rocm/7.2.0
+source .venv/bin/activate
+export https_proxy='http://proxy.ccs.ornl.gov:3128'
+export http_proxy='http://proxy.ccs.ornl.gov:3128'
+export no_proxy='localhost,127.0.0.1,0.0.0.0'
 ```
 
 ### Running SciTrust
@@ -71,6 +100,24 @@ To get performance results use the ```scitrust-eval``` command:
 ```
 scitrust-eval --perspective <trustworthiness-perspective> --dataset <dataset-name> -k <number-of-demonstrations> --model <model-name>
 ```
+
+### Running on a Frontier compute node
+
+Local models (e.g. FORGE-L, Darwin) require a GPU, so run them on a compute node rather than a login node. With your environment active (modules, `.venv`, and proxy — see [Before each session](#before-each-session)), request an interactive allocation:
+
+```bash
+salloc -A stf218 -N 1 -t 00:20:00 -p batch
+```
+
+Adjust `-A` (project account), `-N` (node count), and `-t` (walltime) to suit your run. Once the allocation is granted, launch inference with `srun` from the repository root:
+
+```bash
+HOME=$PWD srun -n1 scitrust-run --perspective truthfulness_misinformation --dataset SciQ -k 0 --model forge-l-instruct
+```
+
+- Run from the repository root so the relative `models/forge-l` path resolves.
+- `HOME=$PWD` redirects the Hugging Face / model cache into the project directory instead of your (quota-limited) home area.
+- API-only models (`gpt-o4-mini`, `claude-sonnet-3.7`) need no GPU and can run on a login node, but still require the proxy and the relevant API key.
 
 #### Supported Models w/ Flags
 
