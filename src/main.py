@@ -19,24 +19,11 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3,4,5,6,7"
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
-    print("Found cuda")
 else:
     device = torch.device("cpu")
-    print("Couldn't find cuda")
 
 
-'''rank = int(os.environ["RANK"])
-device = torch.device(f"cuda:{rank}")
-torch.distributed.init_process_group("nccl", device_id=device)
-
-local_rank = os.getenv("LOCAL_RANK")
-device_string = "cuda:" + str(local_rank)
-print("device_string", device_string)
-'''
 def main():
-
-    #print(args)
-    print('parsing args')
 
     parser = argparse.ArgumentParser()
 
@@ -52,14 +39,11 @@ def main():
     parser.add_argument('--from_file', type=str, default=None)
 
     args = parser.parse_args()
-    print('#devices =', torch.cuda.device_count())
-    print('available =', torch.cuda.is_available())
-
 
     openended_datasets = ['ChemistryQA', "BiologyQA", "ComputerScienceQA", "PhysicsQA", "MaterialsScienceQA", 'LogicInference', "HarmBench-CHEM-BIO", "HarmBench-CYBERCRIME-INTRUSION"]
 
     dataset_name = args.dataset
-    model_name = args.model #'forge'
+    model_name = args.model
     k = args.k
     restart = args.restart
     split = args.split
@@ -68,10 +52,6 @@ def main():
     openended = (dataset_name in openended_datasets) or (from_file != None)
     use_cot = args.use_cot
     api_key = args.api_key
-    #device = args.device
-
-    print("openended", openended)
-    print("use_cot", use_cot)
 
     dataset = get_dataset(perspective, dataset_name, k=k, split=split, use_cot=use_cot, from_file=from_file)
 
@@ -89,7 +69,7 @@ def main():
     else:
         output_path = "outputs/{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, use_cot)
         checkpoint_path = "checkpoints/chkpt_{}_{}_{}_{}_{}_{}.json".format(perspective, model_name, dataset_name, k, split, use_cot)
-    features = ['x', 'y', 'gen1', 'gen2', 'gen3', 'gen4']#, 'gen5']
+    features = ['x', 'y', 'gen1', 'gen2', 'gen3', 'gen4']
 
 
     generation_data = []
@@ -102,7 +82,7 @@ def main():
         from transformers import AutoTokenizer, AutoModelForCausalLM
         model_name = "meta-llama/Llama-3.1-405B-Instruct"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name, tp_plan="auto") #device_map='auto')
+        model = AutoModelForCausalLM.from_pretrained(model_name, tp_plan="auto")
     elif model_name == 'llama3.3-70b-instruct':
         from transformers import AutoTokenizer, AutoModelForCausalLM
         model_name = "meta-llama/Meta-Llama-3.3-70B-Instruct"
@@ -128,7 +108,6 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained(model_path, unk_token="<unk>", bos_token="<s>", eos_token="</s>")
         model = LlamaForCausalLM.from_pretrained(model_path, load_in_8bit=False, torch_dtype=torch_type, device_map='auto')
     elif model_name == 'galactica-120b':
-        # Load model directly
         from transformers import AutoTokenizer, AutoModelForCausalLM
         tokenizer = AutoTokenizer.from_pretrained("facebook/galactica-120b")
         model = AutoModelForCausalLM.from_pretrained("facebook/galactica-120b", device_map='auto')
@@ -136,9 +115,6 @@ def main():
         print("Model name {} invalid. Supported models: gpt-o4-mini, claude-sonnet-3.7, gemini-2.0-pro, llama3-70b-instruct, forge-l-instruct, sciglm-6b, darwin-7b, galactica-120b".format(model_name))
         exit()
 
-    print(torch.cuda.device_count())
-
-    #load checkpoint
     data_loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=1)
 
     if restart:
@@ -147,27 +123,22 @@ def main():
         start_idx = 0
 
     start = time.time()
-    #for batch_idx, batch in enumerate(tqdm(data_loader), start=start_idx):
     for batch_idx, batch in enumerate(tqdm(data_loader)):
 
         if batch_idx < start_idx:
             continue
         if  model_name == 'gpt-o3-mini' or model_name == "gpt-o4-mini" or model_name == 'claude-sonnet-3.7' or model_name == 'gemini-2.0-pro':
-            print("openended", openended, "perspective", perspective)
             if openended and (perspective == 'truthfulness_misinformation' or perspective == 'truthfulness_hallucination' or perspective == "truthfulness_logical_reasoning"):
                 gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
             else:
                 gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=1)
-            #gen_text_samples_batch = generate_samples_from_api(batch, model_name, api_key, openended, use_cot)
         else:
-            #print("openended", openended, "perspective", perspective, "")
             gen_text_samples_batch = generate_samples(batch, tokenizer, model, device, openended, use_cot)
         for sample_data in gen_text_samples_batch:
             append_record(dict(zip(features, sample_data)), output_path)
         save_checkpoint(batch_idx+1, output_path, checkpoint_path)  # Save checkpoint after each batch
         end = time.time()
         print('batch inference time', end - start)
-        #exit()
 
 if __name__ == '__main__':
 

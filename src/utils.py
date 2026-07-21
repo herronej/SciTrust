@@ -238,7 +238,6 @@ def append_record(record, filename):
 
 def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=False, n_samples=4):
     gen_text_samples_batch = []
-    #print('len(batch)', len(batch))
     if openended and use_cot:
         max_new_tokens=600
     elif openended:
@@ -251,10 +250,7 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
         for n in range(n_samples):
-            print('n', n)
             input_ids = tokenizer(d[0], return_tensors="pt").input_ids.to(device)
-            #print('tokenizer.model_max_length', tokenizer.model_max_length)
-            #print(input_ids.shape)
             gen_start_time = time.time()
             gen_tokens = model.generate(input_ids, do_sample=True, temperature=0.7, max_new_tokens=max_new_tokens)
             gen_end_time = time.time()
@@ -262,14 +258,13 @@ def generate_samples(batch, tokenizer, model, device, openended=False, use_cot=F
             gen_text = tokenizer.batch_decode(gen_tokens[:, input_ids.shape[1]:])[0]
             gen_text_samples.append(gen_text)
         sample_data = [d[0], d[1]] + gen_text_samples
-        print('sample_data', sample_data)
         gen_text_samples_batch.append(sample_data)
     return gen_text_samples_batch
 
 def send_prompt_to_chatgpt(prompt, model, api_key, max_tokens):
 
     client = OpenAI(
-        api_key=api_key,  # This is the default and can be omitted
+        api_key=api_key,
     )
 
     chat_completion = client.chat.completions.create(
@@ -280,11 +275,9 @@ def send_prompt_to_chatgpt(prompt, model, api_key, max_tokens):
             }
         ],
         model=model,
-        #max_completion_tokens=max_tokens,
     )
 
-    response = chat_completion.choices[0].message.content #requests.post(url, json=data, headers=headers)
-    #if response.status_code == 200:
+    response = chat_completion.choices[0].message.content
     return response
 
 def send_prompt_to_gemini(prompt, api_key, max_tokens):
@@ -293,13 +286,9 @@ def send_prompt_to_gemini(prompt, api_key, max_tokens):
 
     chat_completion = client.models.generate_content(
         model="gemini-2.0-flash",
-        #max_tokens=max_tokens,
         contents=prompt,
     )
     response = chat_completion.text
-    #print(response)
-    #exit()
-    #if response.status_code == 200:
     return response
 
 def send_prompt_to_claude(prompt, api_key, max_tokens):
@@ -317,17 +306,11 @@ def send_prompt_to_claude(prompt, api_key, max_tokens):
         ],
     )
     response = chat_completion.content[0].text
-    #print(response)
-    #exit()
-    #if response.status_code == 200:
     return response
 
 def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_samples=4):
 
-    #print("Num Samples", n_samples)
-
     gen_text_samples_batch = []
-    #print('len(batch)', len(batch))
     if openended and use_cot:
         max_new_tokens=600
     elif openended:
@@ -342,7 +325,6 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
     for d in zip(batch[0], batch[1]):
         gen_text_samples = []
         for n in range(n_samples):
-            print('n', n)
             if model_name == 'gpt-o4-mini':
             	gen_text = send_prompt_to_chatgpt(d[0], 'o4-mini', api_key, max_new_tokens)
             elif model_name == 'gpt-o3-mini':
@@ -353,9 +335,7 @@ def generate_samples_from_api(batch, model_name, api_key, openended, use_cot, n_
                 gen_text = send_prompt_to_gemini(d[0], api_key, max_new_tokens)
             gen_text_samples.append(gen_text)
         sample_data = [d[0], d[1]] + gen_text_samples
-        print('sample_data', sample_data)
         gen_text_samples_batch.append(sample_data)
-    #print(len(gen_text_samples_batch))
     return gen_text_samples_batch
 
 
